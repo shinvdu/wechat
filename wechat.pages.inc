@@ -8,6 +8,8 @@ function wechat_callback(){
   $weObj->valid();
   $type = $weObj->getRev()->getRevType();
   $request_data = $weObj->getRevData();
+ 
+  drupal_set_message('123');
   $request_message = wechat_build_request_message($request_data);
   module_invoke_all('wechat_message', $weObj);
   module_invoke_all('wechat_message_alter', $weObj);

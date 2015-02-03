@@ -1059,11 +1059,11 @@ function _wechat_menu_form_validate($form, &$form_state) {
 function _wechat_init_obj(){
   $weObj = &drupal_static(__FUNCTION__);
   if(!isset($weObj)){
-    module_load_include('php', 'wechat', 'wechat.class');
+    module_load_include('php', 'wechat', 'sdk/wechat.class');
     $options = array(
-      'token' => variable_get('wechat_config_token', ""),
-      'appid' => variable_get('wechat_config_appid', ""),
-      'appsecret' => variable_get('wechat_config_appsecret', ""),
+      'token' => variable_get('wechat_token', ""),
+      'appid' => variable_get('wechat_appid', ""),
+      'appsecret' => variable_get('wechat_appsecret', ""),
     );
     $weObj = new Wechat($options);
   }
