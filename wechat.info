@@ -6,6 +6,7 @@ files[] = wechat.admin.inc
 files[] = wechat.info.inc
 configure = admin/structure/wechat-request-messages
 dependencies[] = entity
+dependencies[] = field_collection
 dependencies[] = features
 dependencies[] = text
 features[features_api][] = api:2
