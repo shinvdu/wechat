@@ -58,7 +58,7 @@ function wechat_schema() {
         'type' => 'serial',
         'not null' => TRUE,
         'description' => 'Primary Key: Unique wechat request message type ID.',
-      ),
+      ),	  
       'type' => array(
         'description' => 'The machine-readable name of this wechat request message type.',
         'type' => 'varchar',
@@ -116,7 +116,13 @@ function wechat_schema() {
         'not null' => TRUE,
         'description' => 'Primary Key: Unique wechat response message ID.',
       ),
-
+      'rm_id' => array(
+        'description' => t('Wechat request message ID.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
       'to_user_name' => array(
         'description' => t('To user name of wechat response message.'),
         'type' => 'varchar',

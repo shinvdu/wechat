@@ -912,11 +912,26 @@ class WechatResponseMessage extends Entity {
   public $id;
   
   /**
-   * The message id.
+   * The save flag.
+   *
+   * @var integer
+   */
+  public $save;
+  
+  /**
+   * The wechat request message id.
+   *
+   * @var integer
+   */
+  public $rm_id;
+  
+  /**
+   * The func flag.
    *
    * @var integer
    */
   public $func_flag;
+
   /**
    * The to user name of wechat request message.
    *
