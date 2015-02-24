@@ -194,8 +194,7 @@ function wechat_response_message_obj_to_xml(WechatResponseMessage $message) {
   }
   elseif ($message->msg_type == 'video') {
     $media_id = $message_wrapper->wechat_media_id->value();
-    $title = $message_wrapper->wechat_title->value();
-    $description = $message_wrapper->wechat_description->value();
+    $thumb_media_id = $message_wrapper->wechat_thumb_media_id->value();
     $return_template = 
     "<xml>
       <ToUserName><![CDATA[%s]]></ToUserName>
@@ -204,18 +203,18 @@ function wechat_response_message_obj_to_xml(WechatResponseMessage $message) {
       <MsgType><![CDATA[video]]></MsgType>
       <Video>
         <MediaId><![CDATA[%s]]></MediaId>
-        <Title><![CDATA[%s]]></Title>
-        <Description><![CDATA[%s]]></Description>
+        <ThumbMediaId><![CDATA[%s]]></ThumbMediaId>
       </Video> 
     </xml>";
-    $result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $media_id, $title, $description);
+    $result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $media_id, $thumb_media_id);
   } 
   elseif ($message->msg_type == 'music') {
-    $media_id = $message_wrapper->wechat_thumb_media_id->value();
+    //$media_id = $message_wrapper->wechat_thumb_media_id->value();
     $title = $message_wrapper->wechat_title->value();
     $description = $message_wrapper->wechat_description->value();
     $music_url = $message_wrapper->wechat_music_url->value();
     $hq_music_url = $message_wrapper->wechat_hq_music_url->value();
+    $thumb_media_id = $message_wrapper->wechat_thumb_media_id->value();
     $return_template = 
     "<xml>
       <ToUserName><![CDATA[%s]]></ToUserName>
@@ -230,7 +229,7 @@ function wechat_response_message_obj_to_xml(WechatResponseMessage $message) {
         <ThumbMediaId><![CDATA[%s]]></ThumbMediaId>
       </Music>
     </xml>";
-    $result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $title, $description, $music_url, $hq_music_url, $media_id);
+    $result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $title, $description, $music_url, $hq_music_url, $thumb_media_id);
   } 
   elseif ($message->msg_type == 'news') {
     $media_id = $message_wrapper->wechat_media_id->value();
@@ -253,6 +252,56 @@ function wechat_response_message_obj_to_xml(WechatResponseMessage $message) {
 
   } 
 
+  return $result_str;
+}
+
+function wechat_response_message_obj_to_json(WechatResponseMessage $message) {
+  $message_wrapper = entity_metadata_wrapper('wechat_response_message', $message);
+  $request_time = REQUEST_TIME;
+  $to_user_name = $message_wrapper->to_user_name->value();
+  $result_json = '{"touser":"' . $to_user_name . '",';
+  
+  if ($message->msg_type == 'text') {
+    $result_json .= '"msgtype":"text",';
+    $content = $message_wrapper->wechat_content->value();
+    $result_json .= '"text":{"content":"' . $content . '"}}';
+  }
+  elseif ($message->msg_type == 'image') {
+    $result_json .= '"msgtype":"image",';
+    $media_id = $message_wrapper->wechat_media_id->value();
+    $result_json .= '"image":{"media_id":"' . $media_id . '"}}';
+  }
+  elseif ($message->msg_type == 'voice') {
+    $result_json .= '"msgtype":"voice",';
+    $media_id = $message_wrapper->wechat_media_id->value();
+    $result_json .= '"voice":{"media_id":"' . $media_id . '"}}';
+  } 
+  elseif ($message->msg_type == 'video') {
+    $result_json .= '"msgtype":"video",';
+    $media_id = $message_wrapper->wechat_media_id->value();
+    $thumb_media_id = $message_wrapper->wechat_thumb_media_id->value();
+    $result_json .= '"video":{"media_id":"' . $media_id . '","thumb_media_id":"' . $thumb_media_id . '"}}';
+  }
+  elseif ($message->msg_type == 'music') {
+    $result_json .= '"msgtype":"music",';
+    $title = $message_wrapper->wechat_title->value();
+    $description = $message_wrapper->wechat_description->value();
+    $music_url = $message_wrapper->wechat_music_url->value();
+    $hq_music_url = $message_wrapper->wechat_hq_music_url->value();
+    $thumb_media_id = $message_wrapper->wechat_thumb_media_id->value();
+    $result_json .= '"music":{';
+    $result_json .= '"title":"' . $title . '",';
+    $result_json .= '"description":"' . $description . '",';
+    $result_json .= '"musicurl":"' . $music_url . '",';
+    $result_json .= '"hqmusicurl":"' . $hq_music_url . '",';
+    $result_json .= '"thumb_media_id":"' . $thumb_media_id . '"';
+    $result_json .= '}}';
+  }
+  elseif ($message->msg_type == 'news') {
+    $result_json .= '"msgtype":"news",';
+    //Todo
+
+  }  
   return $result_str;
 }
 
@@ -1166,4 +1215,42 @@ function wechat_connect_user($uid, $openid) {
     }
   }
   return FALSE;
+}
+
+function wechat_get_access_token($appid='', $appsecret='') {
+  $access_token = FALSE;
+  $result = db_query("SELECT * FROM {wechat_access_token} WHERE app_id=:appid", array(':appid' => $appid));
+  $current = time();
+  if (!$result) {
+   
+  }
+  else{
+    $access_token_object = $result->fetchObject();
+    
+    $expire = $access_token_object->expire;
+    $create_time = $access_token_object->create_time;
+    if ($create_time + $expire - 30 > $current) {
+      $access_token = $access_token_object->token;
+      return $access_token;
+    }
+  }
+
+  $we_obj = _wechat_init_obj();
+  $access_token = $we_obj->checkAuth($appid, $appsecret);
+
+  if (!empty($access_token)) {
+    db_delete('wechat_access_token')
+    ->condition('app_id', $appid)
+    ->execute();
+
+    $query = db_insert('wechat_access_token')->fields(array('app_id', 'token', 'expire', 'create_time'));
+    $query->values(array(
+      'app_id' => $appid,
+      'token' => $access_token,
+      'expire' => 3600,
+      'create_time' => $current,
+    ));
+    $query->execute();
+  }
+  return $access_token;
 }

@@ -77,7 +77,7 @@ function wechat_build_response_message($request_message) {
         $response_message_wrapper->wechat_content->set($default_message_content);
       }
     }
-    $wechat_content = $response_message_wrapper->wechat_content->value();	
+    $wechat_content = $response_message_wrapper->wechat_content->value();
     if (empty($wechat_content)) {
       $default_message_content = variable_get("wechat_default_message", "Hi, WeChat!");
       $response_message_wrapper->wechat_content->set($default_message_content);

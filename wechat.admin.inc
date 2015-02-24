@@ -292,3 +292,80 @@ function wechat_response_message_type_form_submit(&$form, &$form_state) {
 function wechat_response_message_type_form_submit_delete(&$form, &$form_state) {
   $form_state['redirect'] = 'admin/structure/wechat-response-messages/manage/' . $form_state['message_type']->type . '/delete';
 }
+
+/**
+ * Form callback: create or edit a wechat_response_message.
+ *
+ * @param $message
+ *   The message object to edit.
+ */
+function wechat_response_message_edit_form($form, &$form_state, $message) {
+  // Add the default field elements.
+  $form['to_user_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('To user name'),
+    '#default_value' => isset($message->to_user_name) ? $message->to_user_name : '',
+    '#maxlength' => 255,
+    '#required' => TRUE,
+    '#weight' => -5,
+  );
+
+  // Add the field related form elements.
+  $form_state['message'] = $message;
+  field_attach_form('wechat_response_message', $message, $form, $form_state);
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+    '#weight' => 40,
+  );
+  if (!empty($message->id)) {
+    $form['actions']['delete'] = array(
+      '#type' => 'submit',
+      '#value' => t('Delete message'),
+      '#weight' => 45,
+      '#limit_validation_errors' => array(),
+      '#submit' => array('wechat_response_message_edit_form_submit_delete')
+    );
+  }
+
+  // We append the validate handler to #validate in case a form callback_wrapper
+  // is used to add validate handlers earlier.
+  $form['#validate'][] = 'wechat_response_message_edit_form_validate';
+  return $form;
+}
+
+
+/**
+ * Form API validate callback for the model form
+ */
+function wechat_response_message_edit_form_validate(&$form, &$form_state) {
+  $message = $form_state['message'];
+  
+  // Notify field widgets to validate their data.
+  field_attach_form_validate('wechat_response_message', $message, $form, $form_state);
+}
+
+
+/**
+ * Form API submit callback for the model form.
+ * 
+ * @todo remove hard-coded link
+ */
+function wechat_response_message_edit_form_submit(&$form, &$form_state) {
+  
+  $message = &$form_state['message'];
+  
+  $message->to_user_name = $form_state['values']['to_user_name'];
+  
+  // Notify field widgets.
+  field_attach_submit('wechat_response_message', $message, $form, $form_state);
+  
+  // Save the breadcrumb
+  wechat_response_message_save($message);
+
+  drupal_set_message(t('wechat_response_message saved.'));
+  $form_state['redirect'] = '';
+}
+
