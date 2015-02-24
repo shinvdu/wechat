@@ -18,14 +18,14 @@ function wechat_config_form($form, $form_state) {
     '#title' => t('AppID'),
     '#description' => t('Account APPID'),
     '#default_value' => variable_get('wechat_appid', ""),
-    '#required' => true,
+    '#required' => TRUE,
   );
   $form['wechat_appsecret'] = array(
     '#type' => 'textfield',
     '#title' => t('AppSecret'),
     '#description' => t('Account AppSecret'),
     '#default_value' => variable_get('wechat_appsecret', ""),
-    '#required' => true,
+    '#required' => TRUE,
   );
   return system_settings_form($form);
 }
@@ -33,16 +33,16 @@ function wechat_default_message_config_form($form, $form_state) {
   $form['wechat_default_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Auto reply message'),
-    '#description' => t('The WeChat module will send this message to user if no other Modules '),
+    '#description' => t('The WeChat module will send this message to user if no other Modules'),
     '#default_value' => variable_get('wechat_default_message', "hello, I'm wechat"),
-    '#required' => true,
+    '#required' => TRUE,
   );
   $form['wechat_follow_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Auto reply message after follow.'),
     '#description' => '',
     '#default_value' => variable_get('wechat_follow_message', "hello, I'm wechat"),
-    '#required' => false,
+    '#required' => FALSE,
   );
   return system_settings_form($form);
 }
@@ -59,20 +59,19 @@ function wechat_update_menu_form($form, $form_state) {
 /**
  * update wechat menu
  */
-function wechat_admin_update_menu_submit($form, &$form_state){
+function wechat_admin_update_menu_submit($form, &$form_state) {
   $menu_arr = _wechat_menu_arr();
-  if(empty($menu_arr['button'])){
-    drupal_set_message('Empty WeChat Menu', 'error');
+  if (empty($menu_arr['button'])) {
+    drupal_set_message(t('Empty WeChat Menu'), 'error');
   }
-  else{
-	  $weObj = _wechat_init_obj();
-    if($weObj->createMenu($menu_arr))
-  	{
-      drupal_set_message('Update menu success.');
-  	}
-  	else{
-  	  drupal_set_message($weObj->errMsg.'-'.$weObj->errCode, 'error');
-  	}
+  else {
+    $we_obj = _wechat_init_obj();
+    if ($we_obj->createMenu($menu_arr)) {
+      drupal_set_message(t('Update menu success.'));
+    }
+    else {
+      drupal_set_message($we_obj->errMsg . '-' . $we_obj->errCode, 'error');
+    }
   }
   return;
 }
@@ -80,26 +79,26 @@ function wechat_admin_update_menu_submit($form, &$form_state){
 /**
  * drupal menu to wechat menu array
  */
-function _wechat_menu_arr(){
-  $menu_tree = menu_build_tree('wechat', array('max_depth'=>2));
+function _wechat_menu_arr() {
+  $menu_tree = menu_build_tree('wechat', array('max_depth' => 2));
   $menu_arr = array();
   $menu_arr['button'] = array();
-  foreach($menu_tree as $val){
-    if($val['link']['hidden']){
+  foreach ($menu_tree as $val) {
+    if ($val['link']['hidden']) {
       continue;
     }
     $element = array();
     $element['name'] = $val['link']['link_title'];
     $element['sub_button'] = array();
-    if(!empty($val['below'])){
-      foreach($val['below'] as $subval){
-        if($subval['link']['hidden']){
+    if (!empty($val['below'])) {
+      foreach ($val['below'] as $subval) {
+        if ($subval['link']['hidden']) {
           continue;
         }
         $element['sub_button'][] = _wechat_menu_item($subval);
       }
     }
-    if(empty($element['sub_button'])){
+    if (empty($element['sub_button'])) {
       unset($element['sub_button']);
       $element = _wechat_menu_item($val);
     }
@@ -111,17 +110,17 @@ function _wechat_menu_arr(){
 /**
  * Drupal menu to wechat menu
  */
-function _wechat_menu_item($subval){
+function _wechat_menu_item($subval) {
   $subelement = array();
   $subelement['name'] = $subval['link']['link_title'];
-  if(isset($subval['link']['options']['attributes']['wechat_type'])
-      && $subval['link']['options']['attributes']['wechat_type'] == 'click'){
-	  $subelement['type'] = 'click';
-	  $subelement['key'] = $subval['link']['options']['attributes']['wechat_key'];
+  if (isset($subval['link']['options']['attributes']['wechat_type'])
+  && $subval['link']['options']['attributes']['wechat_type'] == 'click') {
+    $subelement['type'] = 'click';
+    $subelement['key'] = $subval['link']['options']['attributes']['wechat_key'];
   }
-  else{
+  else {
     $subelement['type'] = 'view';
-	  $subelement['url'] = $subval['link']['options']['attributes']['wechat_url'];
+    $subelement['url'] = $subval['link']['options']['attributes']['wechat_url'];
   }
   return $subelement;
 }
@@ -254,7 +253,7 @@ function wechat_response_message_type_form($form, &$form_state, $message_type, $
     '#type' => 'submit',
     '#value' => t('Save message type'),
     '#weight' => 40,
-	'#submit' => array('wechat_response_message_type_form_submit')
+    '#submit' => array('wechat_response_message_type_form_submit')
   );
   $form['weight'] = array(
     '#type' => 'weight',

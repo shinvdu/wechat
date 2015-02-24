@@ -18,7 +18,7 @@ function wechat_menu() {
     'page callback' => 'wechat_callback',
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
-	'file' => 'wechat.pages.inc',
+    'file' => 'wechat.pages.inc',
   );
   $items['admin/config/services/wechat'] = array(
     'title' => 'Config Wechat',
@@ -27,12 +27,12 @@ function wechat_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wechat_config_form'),
     'type' => MENU_NORMAL_ITEM,
-  	'file' => 'wechat.admin.inc',
+    'file' => 'wechat.admin.inc',
   );
   $items['admin/config/services/wechat/config'] = array(
     'title' => 'Config Wechat',
-  	'type' => MENU_DEFAULT_LOCAL_TASK,
-  	'weight' => -1,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -1,
   ); 
   $items['admin/config/services/wechat/default-message'] = array(
     'title' => 'Default message',
@@ -40,8 +40,8 @@ function wechat_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wechat_default_message_config_form'),
     'type' => MENU_LOCAL_TASK,
-  	'file' => 'wechat.admin.inc',
-	'weight' => 1,
+    'file' => 'wechat.admin.inc',
+    'weight' => 1,
   ); 
   $items['admin/config/services/wechat/update-menu'] = array(
     'title' => 'Update menu',
@@ -49,8 +49,8 @@ function wechat_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wechat_update_menu_form'),
     'type' => MENU_LOCAL_TASK,
-  	'file' => 'wechat.admin.inc',
-	'weight' => 1,
+    'file' => 'wechat.admin.inc',
+    'weight' => 1,
   );   
   /* login with wechat */
   $items['wechat/auth'] = array(
@@ -58,200 +58,202 @@ function wechat_menu() {
     'page callback' => 'wechat_auth',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
-	  'file' => 'wechat.pages.inc',
+    'file' => 'wechat.pages.inc',
   );  
   return $items;
 }
 
-function wechat_check_signature(){
-	$signature = $_GET["signature"];
-	$timestamp = $_GET["timestamp"];
-	$nonce = $_GET["nonce"];	
-			
-	$token = variable_get('wechat_token', '');
-	$tmpArr = array($token, $timestamp, $nonce);
-	sort($tmpArr);
-	$tmpStr = implode( $tmpArr );
-	$tmpStr = sha1( $tmpStr );
-	
-	if( $tmpStr == $signature ){
-		return true;
-	}else{
-		return false;
-	}
+function wechat_check_signature() {
+  $signature = $_GET["signature"];
+  $timestamp = $_GET["timestamp"];
+  $nonce = $_GET["nonce"];
+
+  $token = variable_get('wechat_token', '');
+  $tmp_arr = array($token, $timestamp, $nonce);
+  sort($tmp_arr);
+  $tmp_str = implode( $tmp_arr );
+  $tmp_str = sha1( $tmp_str );
+
+  if ( $tmp_str == $signature ) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
 }
-function wechat_build_request_message($request_data){
+function wechat_build_request_message($request_data) {
   //转换回来
   $xml_obj = (object)$request_data;
   $message = entity_create('wechat_request_message', array('msg_type' => $xml_obj->MsgType));
   $message_wrapper = entity_metadata_wrapper('wechat_request_message', $message);
   $message_wrapper->to_user_name->set($xml_obj->ToUserName);
   $message_wrapper->from_user_name->set($xml_obj->FromUserName);
-  if($xml_obj->MsgType == 'event'){
+  if ($xml_obj->MsgType == 'event') {
     $message_wrapper->msg_id->set('');
-  }else{
+  }
+  else {
     $message_wrapper->msg_id->set($xml_obj->MsgId);
   }
-  if($xml_obj->MsgType == 'text'){
+  
+  if ($xml_obj->MsgType == 'text') {
     $message_wrapper->wechat_content->set($xml_obj->Content);
   }
-  elseif($xml_obj->MsgType == 'image'){
+  elseif ($xml_obj->MsgType == 'image') {
     $message_wrapper->wechat_pic_url->set($xml_obj->PicUrl);
   }
-  elseif($xml_obj->MsgType == 'voice'){
+  elseif ($xml_obj->MsgType == 'voice') {
     $message_wrapper->wechat_media_id->set($xml_obj->MediaId);
-	$message_wrapper->wechat_format->set($xml_obj->Format);
-	$message_wrapper->wechat_recognition->set($xml_obj->Recognition);
+    $message_wrapper->wechat_format->set($xml_obj->Format);
+    $message_wrapper->wechat_recognition->set($xml_obj->Recognition);
   }
-  elseif($xml_obj->MsgType == 'video'){
+  elseif ($xml_obj->MsgType == 'video') {
     $message_wrapper->wechat_media_id->set($xml_obj->MediaId);
-	$message_wrapper->wechat_thumb_media_id->set($xml_obj->ThumbMediaId);
+    $message_wrapper->wechat_thumb_media_id->set($xml_obj->ThumbMediaId);
   } 
-  elseif($xml_obj->MsgType == 'location'){
+  elseif ($xml_obj->MsgType == 'location') {
     $message_wrapper->wechat_location_x->set($xml_obj->Location_X);
-	$message_wrapper->wechat_location_y->set($xml_obj->Location_Y);
-	$message_wrapper->wechat_scale->set($xml_obj->Scale);
-	$message_wrapper->wechat_label->set($xml_obj->Label);
+    $message_wrapper->wechat_location_y->set($xml_obj->Location_Y);
+    $message_wrapper->wechat_scale->set($xml_obj->Scale);
+    $message_wrapper->wechat_label->set($xml_obj->Label);
   } 
-  elseif($xml_obj->MsgType == 'link'){
+  elseif ($xml_obj->MsgType == 'link') {
     $message_wrapper->wechat_title->set($xml_obj->Title);
-	$message_wrapper->wechat_description->set($xml_obj->Description);
-	$message_wrapper->wechat_url->set($xml_obj->Url);
+    $message_wrapper->wechat_description->set($xml_obj->Description);
+    $message_wrapper->wechat_url->set($xml_obj->Url);
   }  
-  elseif($xml_obj->MsgType == 'event'){
+  elseif ($xml_obj->MsgType == 'event') {
     $message_wrapper->wechat_event->set($xml_obj->Event);
-	if(isset($xml_obj->EventKey)){
-	  $message_wrapper->wechat_event_key->set($xml_obj->EventKey);
-	}
-	if(isset($xml_obj->Ticket)){
-	  $message_wrapper->wechat_ticket->set($xml_obj->Ticket);
-	}
-	if(isset($xml_obj->Latitude)){
-	  $message_wrapper->wechat_latitude->set($xml_obj->Latitude);
-	}	
-	if(isset($xml_obj->Longitude)){
-	  $message_wrapper->wechat_longitude->set($xml_obj->Longitude);
-	}	
-	if(isset($xml_obj->Precision)){
-	  $message_wrapper->wechat_precision->set($xml_obj->Precision);
-	}		
-	
+    if (isset($xml_obj->EventKey)) {
+      $message_wrapper->wechat_event_key->set($xml_obj->EventKey);
+    }
+    if (isset($xml_obj->Ticket)) {
+      $message_wrapper->wechat_ticket->set($xml_obj->Ticket);
+    }
+    if (isset($xml_obj->Latitude)) {
+      $message_wrapper->wechat_latitude->set($xml_obj->Latitude);
+    }
+    if (isset($xml_obj->Longitude)) {
+      $message_wrapper->wechat_longitude->set($xml_obj->Longitude);
+    }
+    if (isset($xml_obj->Precision)) {
+      $message_wrapper->wechat_precision->set($xml_obj->Precision);
+    }
+
   }   
   $message_wrapper->save(true);
   $message = $message_wrapper->value();
   return $message;
 }
 
-function wechat_response_message_obj_to_xml(WechatResponseMessage $message){
+function wechat_response_message_obj_to_xml(WechatResponseMessage $message) {
   $message_wrapper = entity_metadata_wrapper('wechat_response_message', $message);
   $request_time = REQUEST_TIME;
   $to_user_name = $message_wrapper->to_user_name->value();
   $from_user_name = $message_wrapper->from_user_name->value();
   $result_str = "";
-  if($message->msg_type == 'text'){
+  if ($message->msg_type == 'text') {
     $content = $message_wrapper->wechat_content->value();
-	$return_template = 
-	"<xml>
-	  <ToUserName><![CDATA[%s]]></ToUserName>
-	  <FromUserName><![CDATA[%s]]></FromUserName>
-	  <CreateTime>%s</CreateTime>
-	  <MsgType><![CDATA[text]]></MsgType>
-	  <Content><![CDATA[%s]]></Content>
-	  <FuncFlag>0</FuncFlag>
-	</xml>";
-	$result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $content);
+    $return_template = 
+    "<xml>
+      <ToUserName><![CDATA[%s]]></ToUserName>
+      <FromUserName><![CDATA[%s]]></FromUserName>
+      <CreateTime>%s</CreateTime>
+      <MsgType><![CDATA[text]]></MsgType>
+      <Content><![CDATA[%s]]></Content>
+      <FuncFlag>0</FuncFlag>
+    </xml>";
+    $result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $content);
   }
-  elseif($message->msg_type == 'image'){
+  elseif ($message->msg_type == 'image') {
     $media_id = $message_wrapper->wechat_media_id->value();
-	$return_template = 
-	"<xml>
-		<ToUserName><![CDATA[%s]]></ToUserName>
-		<FromUserName><![CDATA[%s]]></FromUserName>
-		<CreateTime>%s</CreateTime>
-		<MsgType><![CDATA[image]]></MsgType>
-		<Image>
-		<MediaId><![CDATA[%s]]></MediaId>
-		</Image>
-	</xml>";
+    $return_template = 
+    "<xml>
+      <ToUserName><![CDATA[%s]]></ToUserName>
+      <FromUserName><![CDATA[%s]]></FromUserName>
+      <CreateTime>%s</CreateTime>
+      <MsgType><![CDATA[image]]></MsgType>
+      <Image>
+        <MediaId><![CDATA[%s]]></MediaId>
+      </Image>
+    </xml>";
     $result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $media_id);
   }
-  elseif($message->msg_type == 'voice'){
+  elseif ($message->msg_type == 'voice') {
     $media_id = $message_wrapper->wechat_media_id->value();
-	$return_template = 
-	"<xml>
-		<ToUserName><![CDATA[%s]]></ToUserName>
-		<FromUserName><![CDATA[%s]]></FromUserName>
-		<CreateTime>%s</CreateTime>
-		<MsgType><![CDATA[image]]></MsgType>
-		<Voice>
-		<MediaId><![CDATA[%s]]></MediaId>
-		</Voice>
-	</xml>";
+    $return_template = 
+    "<xml>
+      <ToUserName><![CDATA[%s]]></ToUserName>
+      <FromUserName><![CDATA[%s]]></FromUserName>
+      <CreateTime>%s</CreateTime>
+      <MsgType><![CDATA[image]]></MsgType>
+      <Voice>
+        <MediaId><![CDATA[%s]]></MediaId>
+      </Voice>
+    </xml>";
     $result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $media_id);
   }
-  elseif($message->msg_type == 'video'){
+  elseif ($message->msg_type == 'video') {
     $media_id = $message_wrapper->wechat_media_id->value();
-	$title = $message_wrapper->wechat_title->value();
-	$description = $message_wrapper->wechat_description->value();
-	$return_template = 
-	"<xml>
-		<ToUserName><![CDATA[%s]]></ToUserName>
-		<FromUserName><![CDATA[%s]]></FromUserName>
-		<CreateTime>%s</CreateTime>
-		<MsgType><![CDATA[video]]></MsgType>
-		<Video>
-		<MediaId><![CDATA[%s]]></MediaId>
-		<Title><![CDATA[%s]]></Title>
-		<Description><![CDATA[%s]]></Description>
-		</Video> 
-	</xml>";
+    $title = $message_wrapper->wechat_title->value();
+    $description = $message_wrapper->wechat_description->value();
+    $return_template = 
+    "<xml>
+      <ToUserName><![CDATA[%s]]></ToUserName>
+      <FromUserName><![CDATA[%s]]></FromUserName>
+      <CreateTime>%s</CreateTime>
+      <MsgType><![CDATA[video]]></MsgType>
+      <Video>
+        <MediaId><![CDATA[%s]]></MediaId>
+        <Title><![CDATA[%s]]></Title>
+        <Description><![CDATA[%s]]></Description>
+      </Video> 
+    </xml>";
     $result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $media_id, $title, $description);
   } 
-  elseif($message->msg_type == 'music'){
+  elseif ($message->msg_type == 'music') {
     $media_id = $message_wrapper->wechat_media_id->value();
-	$title = $message_wrapper->wechat_title->value();
-	$description = $message_wrapper->wechat_description->value();
-	$music_url = $message_wrapper->wechat_music_url->value();
-	$hq_music_url = $message_wrapper->wechat_hq_music_url->value();
-	$return_template = 
-	"<xml>
-		<ToUserName><![CDATA[%s]]></ToUserName>
-		<FromUserName><![CDATA[%s]]></FromUserName>
-		<CreateTime>%s</CreateTime>
-		<MsgType><![CDATA[music]]></MsgType>
-		<Music>
-			<Title><![CDATA[%s]]></Title>
-			<Description><![CDATA[%s]]></Description>
-			<MusicUrl><![CDATA[%s]]></MusicUrl>
-			<HQMusicUrl><![CDATA[%s]]></HQMusicUrl>
-			<ThumbMediaId><![CDATA[%s]]></ThumbMediaId>
-		</Music>
-	</xml>";
+    $title = $message_wrapper->wechat_title->value();
+    $description = $message_wrapper->wechat_description->value();
+    $music_url = $message_wrapper->wechat_music_url->value();
+    $hq_music_url = $message_wrapper->wechat_hq_music_url->value();
+    $return_template = 
+    "<xml>
+      <ToUserName><![CDATA[%s]]></ToUserName>
+      <FromUserName><![CDATA[%s]]></FromUserName>
+      <CreateTime>%s</CreateTime>
+      <MsgType><![CDATA[music]]></MsgType>
+      <Music>
+        <Title><![CDATA[%s]]></Title>
+        <Description><![CDATA[%s]]></Description>
+        <MusicUrl><![CDATA[%s]]></MusicUrl>
+        <HQMusicUrl><![CDATA[%s]]></HQMusicUrl>
+        <ThumbMediaId><![CDATA[%s]]></ThumbMediaId>
+      </Music>
+    </xml>";
     $result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $title, $description, $music_url, $hq_music_url, $media_id);
   } 
-  elseif($message->msg_type == 'news'){
+  elseif ($message->msg_type == 'news') {
     $media_id = $message_wrapper->wechat_media_id->value();
-	$title = $message_wrapper->wechat_title->value();
-	$description = $message_wrapper->wechat_description->value();
-	$music_url = $message_wrapper->wechat_music_url->value();
-	$hq_music_url = $message_wrapper->wechat_hq_music_url->value();
-	$article_count = 0;
-	$result_str = "<xml>";
-	$result_str .= "<ToUserName><![CDATA[" . $to_user_name ."]]></ToUserName>";
-	$result_str .= "<FromUserName><![CDATA[" . $from_user_name ."]]></FromUserName>";
-	$result_str .= "<CreateTime>" . $request_time ."</CreateTime>";
-	$result_str .= "<MsgType><![CDATA[news]]></MsgType>";
-	$result_str .= "<ArticleCount>" . $article_count . "</ArticleCount>";
-	$result_str .= "<Articles>";
-	
-	//此处循环
+    $title = $message_wrapper->wechat_title->value();
+    $description = $message_wrapper->wechat_description->value();
+    $music_url = $message_wrapper->wechat_music_url->value();
+    $hq_music_url = $message_wrapper->wechat_hq_music_url->value();
+    $article_count = 0;
+    $result_str = "<xml>";
+    $result_str .= "<ToUserName><![CDATA[" . $to_user_name . "]]></ToUserName>";
+    $result_str .= "<FromUserName><![CDATA[" . $from_user_name . "]]></FromUserName>";
+    $result_str .= "<CreateTime>" . $request_time . "</CreateTime>";
+    $result_str .= "<MsgType><![CDATA[news]]></MsgType>";
+    $result_str .= "<ArticleCount>" . $article_count . "</ArticleCount>";
+    $result_str .= "<Articles>";
+
+    //此处循环
     $result_str .= "</Articles>";
-	$result_str .= "</xml>";
-	
+    $result_str .= "</xml>";
+
   } 
 
-  return $result_str;  
-
+  return $result_str;
 }
 
 
@@ -278,14 +280,14 @@ function wechat_entity_info() {
       'entity keys' => array(
         'id' => 'id',
         'bundle' => 'msg_type',
-        'label' => 'label',		
+        'label' => 'label',
       ),
       'bundles' => array(),
       'bundle keys' => array(
         'bundle' => 'type',
-      ),	  
+      ),
       'uri callback' => 'entity_class_uri',
-	  'label callback' => 'entity_class_label',
+      'label callback' => 'entity_class_label',
       'access callback' => 'wechat_request_message_access',
       'module' => 'wechat',
       'metadata controller class' => 'WechatRequestMessageMetadataController'
@@ -353,14 +355,14 @@ function wechat_entity_info() {
       'entity keys' => array(
         'id' => 'id',
         'bundle' => 'msg_type',
-        'label' => 'label',		
+        'label' => 'label',
       ),
       'bundles' => array(),
       'bundle keys' => array(
         'bundle' => 'type',
-      ),	  
+      ),
       'uri callback' => 'entity_class_uri',
-	  'label callback' => 'entity_class_label',
+      'label callback' => 'entity_class_label',
       'access callback' => 'wechat_response_message_access',
       'module' => 'wechat',
       'metadata controller class' => 'WechatResponseMessageMetadataController'
@@ -611,10 +613,10 @@ class WechatRequestMessage extends Entity {
   }
 }
 
-function wechat_request_message_type_options_list(){
+function wechat_request_message_type_options_list() {
   $type_options = array(
     'text' => 'text',
-	'image' => 'image',
+    'image' => 'image',
   );
   
   return $type_options;
@@ -978,8 +980,8 @@ function wechat_form_menu_edit_item_alter(&$form, $form_state) {
  */
 function _wechat_menu_form_alter(array &$form, array $item = array(), array &$complete_form) {
   // Restrict access to the new form elements.
-  if($item['menu_name'] !== 'wechat'){
-	  return;
+  if ($item['menu_name'] !== 'wechat') {
+    return;
   }
   $form['options']['#tree'] = TRUE;
   $form['options']['#weight'] = 50;
@@ -999,12 +1001,12 @@ function _wechat_menu_form_alter(array &$form, array $item = array(), array &$co
     '#type' => 'radios',
     '#title' => t('Menu Type'),
     '#default_value' => isset($item['options']['attributes']['wechat_type']) ? $item['options']['attributes']['wechat_type'] : 'click',
-    '#options' => array('click'=>t('Click'), 'view'=>t('View')),
+    '#options' => array('click' => t('Click'), 'view' => t('View')),
     '#description' => t('Click: send click event to server, View: open menu url.'),
-	  '#required' => true,
+      '#required' => TRUE,
   );
   $form['options']['attributes']['wechat_key'] = array(
-	  '#type' => 'textfield',
+    '#type' => 'textfield',
     '#title' => t('Menu KEY'),
     '#description' => t('Key for the menu clicked event'),
     '#default_value' => isset($item['options']['attributes']['wechat_key']) ? $item['options']['attributes']['wechat_key'] : '',
@@ -1015,7 +1017,7 @@ function _wechat_menu_form_alter(array &$form, array $item = array(), array &$co
     ),
   );
   $form['options']['attributes']['wechat_default_message'] = array(
-	  '#type' => 'textarea',
+    '#type' => 'textarea',
     '#title' => t('Menu Default Message'),
     '#description' => t('Send this message on menu clicked if no other module take action'),
     '#default_value' => isset($item['options']['attributes']['wechat_default_message']) ? $item['options']['attributes']['wechat_default_message'] : '',
@@ -1026,11 +1028,11 @@ function _wechat_menu_form_alter(array &$form, array $item = array(), array &$co
     ),
   );
   $form['options']['attributes']['wechat_url'] = array(
-	  '#type' => 'textfield',
+    '#type' => 'textfield',
     '#title' => t('Menu Open URL'),
     '#description' => t('Open this URL if menu type is view.'),
     '#default_value' => isset($item['options']['attributes']['wechat_url']) ? $item['options']['attributes']['wechat_url'] : '',
-	  '#states' => array(
+      '#states' => array(
       'visible' => array(
         ':input[name="options[attributes][wechat_type]"]' => array('value' => 'view'),
       ),
@@ -1040,40 +1042,40 @@ function _wechat_menu_form_alter(array &$form, array $item = array(), array &$co
 }
 
 function _wechat_menu_form_validate($form, &$form_state) {
-	if($form_state['values']['options']['attributes']['wechat_type'] == 'click'){
-		if(empty($form_state['values']['options']['attributes']['wechat_key'])){
-			form_set_error('wechat_key', t('Menu KEY is required'));
-		}
-	}
-	else{
-		if(!valid_url($form_state['values']['options']['attributes']['wechat_url'], true)){
-			form_set_error('wechat_url', t('Please enter a url.'));
-		}
-	}
+  if ($form_state['values']['options']['attributes']['wechat_type'] == 'click') {
+    if (empty($form_state['values']['options']['attributes']['wechat_key'])) {
+      form_set_error('wechat_key', t('Menu KEY is required'));
+    }
+  }
+  else {
+    if (!valid_url($form_state['values']['options']['attributes']['wechat_url'], TRUE)) {
+      form_set_error('wechat_url', t('Please enter a url.'));
+    }
+  }
 }
 
 
 /**
  * init wechat object
  */
-function _wechat_init_obj(){
-  $weObj = &drupal_static(__FUNCTION__);
-  if(!isset($weObj)){
+function _wechat_init_obj() {
+  $we_obj = &drupal_static(__FUNCTION__);
+  if (!isset($we_obj)) {
     module_load_include('php', 'wechat', 'sdk/wechat.class');
     $options = array(
       'token' => variable_get('wechat_token', ""),
       'appid' => variable_get('wechat_appid', ""),
       'appsecret' => variable_get('wechat_appsecret', ""),
     );
-    $weObj = new Wechat($options);
+    $we_obj = new Wechat($options);
   }
-  return $weObj;
+  return $we_obj;
 }
 
 /**
  * user login by uid
  */
-function _wechat_user_login($uid){
+function _wechat_user_login($uid) {
   global $user;
   $user = user_load($uid);
   drupal_session_regenerate();
@@ -1092,42 +1094,42 @@ function wechat_user_load($users) {
 /**
  * load user by wechat openid
  */
-function wechat_get_user_by_openid($openid){
-  $result = db_query("SELECT * FROM {wechat_user} WHERE openid=:openid", array(':openid'=>$openid));
-  if(!$result){
-    return false;
+function wechat_get_user_by_openid($openid) {
+  $result = db_query("SELECT * FROM {wechat_user} WHERE openid=:openid", array(':openid' => $openid));
+  if (!$result) {
+    return FALSE;
   }
   $authmap = $result->fetchAssoc();
-  if(!empty($authmap['uid'])){
-	  return user_load($authmap['uid']);
+  if (!empty($authmap['uid'])) {
+    return user_load($authmap['uid']);
   }
-  return false;
+  return FALSE;
 }
 
 
 /**
  * Login user and get user openid
  */
-function wechat_snsapi_base($path, $onerror=''){
-  $weObj = _wechat_init_obj();
-  $auth_url = $weObj->getOauthRedirect(url('wechat/auth', array('absolute'=>TRUE, 'query'=>array('destination'=>$path, 'onerror'=>$onerror))), 1, 'snsapi_base');
+function wechat_snsapi_base($path, $onerror='') {
+  $we_obj = _wechat_init_obj();
+  $auth_url = $we_obj->getOauthRedirect(url('wechat/auth', array('absolute' => TRUE, 'query' => array('destination' => $path, 'onerror' => $onerror))), 1, 'snsapi_base');
   drupal_goto($auth_url);
 }
 
-function wechat_snsapi_userinfo($path, $onerror){
-  $weObj = _wechat_init_obj();
-	$auth_url = $weObj->getOauthRedirect(url('wechat/auth', array('absolute'=>TRUE, 'query'=>array('destination'=>$path, 'onerror'=>$onerror))), 2, 'snsapi_userinfo');
-	drupal_goto($auth_url);
+function wechat_snsapi_userinfo($path, $onerror) {
+  $we_obj = _wechat_init_obj();
+  $auth_url = $we_obj->getOauthRedirect(url('wechat/auth', array('absolute' => TRUE, 'query' => array('destination' => $path, 'onerror' => $onerror))), 2, 'snsapi_userinfo');
+  drupal_goto($auth_url);
 }
 
 /**
  * connect user with wechat openid
  */
-function wechat_connect_user($uid, $openid){
-  db_query('delete FROM {wechat_user} WHERE uid=:uid OR openid=:openid', array(':uid'=>$uid, ':openid'=>$openid));
-  $weObj = _wechat_init_obj();
-  $user_info = $weObj->getUserInfo($openid);
-  if($user_info){
+function wechat_connect_user($uid, $openid) {
+  db_query('delete FROM {wechat_user} WHERE uid=:uid OR openid=:openid', array(':uid' => $uid, ':openid' => $openid));
+  $we_obj = _wechat_init_obj();
+  $user_info = $we_obj->getUserInfo($openid);
+  if ($user_info) {
     $wechat_user = array(
       'uid' => $uid,
       'openid' => $user_info['openid'],
@@ -1139,11 +1141,9 @@ function wechat_connect_user($uid, $openid){
       'headimgurl' => $user_info['headimgurl'],
       'extend' => array(),
     );
-    if(drupal_write_record('wechat_user', $wechat_user)){
-      return true;
+    if (drupal_write_record('wechat_user', $wechat_user)) {
+      return TRUE;
     }
   }
-  return false;
+  return FALSE;
 }
-
-
