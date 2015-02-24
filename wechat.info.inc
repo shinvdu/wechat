@@ -133,6 +133,16 @@ class WechatResponseMessageMetadataController extends EntityDefaultMetadataContr
       'required' => TRUE,
     );
 
+    $properties['rm_id'] = array(
+      'type' => 'integer',
+      'label' => t('wechat request message ID'),
+      'description' => t('The ID of wechat request message.'),
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer wechat response message',
+      'schema field' => 'rm_id',
+      'required' => FALSE,
+    );
     return $info;
   }
 }

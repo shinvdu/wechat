@@ -145,7 +145,6 @@ function wechat_build_request_message($request_data) {
   return $message;
 }
 
-
 function wechat_response_message_obj_to_xml(WechatResponseMessage $message) {
   $message_wrapper = entity_metadata_wrapper('wechat_response_message', $message);
   $request_time = REQUEST_TIME;
@@ -976,6 +975,11 @@ class WechatResponseMessage extends Entity {
   public function save() {
     parent::save();
   }
+  
+  public function send() {
+    $result_str = wechat_response_message_obj_to_xml($this);
+    echo $result_str;
+  }  
 }
 
 /**

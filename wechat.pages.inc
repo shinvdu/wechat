@@ -17,6 +17,8 @@ function wechat_callback() {
   //drupal_set_message('123');
   $request_message = wechat_build_request_message($request_data);
   $response_message = wechat_build_response_message($request_message);
+  $response_message->send();
+  /* remove the old code.
   //print debug($request_message);
   module_invoke_all('wechat_message', $we_obj);
   module_invoke_all('wechat_message_alter', $we_obj);
@@ -42,6 +44,7 @@ function wechat_callback() {
     $we_obj->text(variable_get("wechat_default_message", "Hi, WeChat!"));
   }
   $we_obj->reply();
+  */
   exit;
 }
 
@@ -54,6 +57,9 @@ function wechat_build_response_message($request_message) {
   $response_message_wrapper->to_user_name->set($request_message_wrapper->from_user_name->value());
   $response_message_wrapper->from_user_name->set($request_message_wrapper->to_user_name->value());
   $response_message_wrapper->create_time->set(REQUEST_TIME);
+  $response_message_wrapper->rm_id->set($request_message->id);
+  //我们这里设置一个save标记，其它模块同构后面的钩子可以修改这个值，它表示保存相应消息到数据库中。也可以不保存。
+  $response_message->save = TRUE;
   
   module_invoke_all('wechat_build_response_message', $response_message, $request_message);
   //default reply.
@@ -77,7 +83,10 @@ function wechat_build_response_message($request_message) {
       $response_message_wrapper->wechat_content->set($default_message_content);
     }
   }
-  $response_message_wrapper->save(true);
+  //The saved Flag default to TRUE. we could change it through hook_wechat_build_response_message.
+  if (isset($response_message->save)) {
+    $response_message_wrapper->save(true);
+  }
   return $response_message;
 }
 
