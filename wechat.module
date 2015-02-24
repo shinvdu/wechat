@@ -427,7 +427,7 @@ function wechat_permission() {
 }
 
 /**
- * Determines whether the given user has access to a breadcrumb.
+ * Determines whether the given user has access to a wechat_request_message.
  *
  * @param $op
  *   The operation being performed. One of 'view', 'update', 'create', 'delete'
@@ -448,7 +448,7 @@ function wechat_request_message_access($op, $message = NULL, $account = NULL) {
 }
 
 /**
- * Determines whether the given user has access to a breadcrumb.
+ * Determines whether the given user has access to a wechat_request_message.
  *
  * @param $op
  *   The operation being performed. One of 'view', 'update', 'create', 'delete'
@@ -476,7 +476,7 @@ function wechat_request_message_type_access($op, $message_type = NULL, $account 
  * @param $reset
  *   A boolean indicating that the internal cache should be reset.
  * @return
- *   A fully-loaded $breadcrumb object or FALSE if it cannot be loaded.
+ *   A fully-loaded $wechat_request_message object or FALSE if it cannot be loaded.
  *
  * @see breadcrumb2_load_multiple()
  */
@@ -499,7 +499,7 @@ function wechat_request_message_load($id, $reset = FALSE) {
  *   An array of wechat request message objects, indexed by bid.
  *
  * @see entity_load()
- * @see breadcrumb2_load()
+ * @see wechat_request_message_load()
  */
 function wechat_request_message_load_multiple($ids = array(), $conditions = array(), $reset = FALSE) {
   return entity_load('wechat_request_message', $ids, $conditions, $reset);
@@ -543,7 +543,7 @@ function wechat_request_message_save(WechatRequestMessage $message) {
 }
 
 /**
- * URI callback for breadcrumbs
+ * URI callback for wechat request message
  */
 function wechat_request_message_uri(WechatRequestMessage $message) {
   return array(
@@ -552,7 +552,7 @@ function wechat_request_message_uri(WechatRequestMessage $message) {
 }
 
 /**
- * The class used for breadcrumb entities
+ * The class used for wechat request message entities
  */
 class WechatRequestMessage extends Entity {
   /**
@@ -623,7 +623,7 @@ function wechat_request_message_type_options_list() {
 }
 
 /**
- * Use a separate class for profile types so we can specify some defaults
+ * Use a separate class for wechat_request_message types so we can specify some defaults
  * modules may alter.
  */
 class WechatRequestMessageType extends Entity {
@@ -638,10 +638,10 @@ class WechatRequestMessageType extends Entity {
   }
 
   /**
-   * Returns whether the profile type is locked, thus may not be deleted or renamed.
+   * Returns whether the wechat_request_message type is locked, thus may not be deleted or renamed.
    *
-   * Profile types provided in code are automatically treated as locked, as well
-   * as any fixed profile type.
+   * Wechat_request_message types provided in code are automatically treated as locked, as well
+   * as any fixed wechat_request_message type.
    */
   public function isLocked() {
     return isset($this->status) && empty($this->is_new) && (($this->status & ENTITY_IN_CODE) || ($this->status & ENTITY_FIXED));
@@ -660,24 +660,24 @@ class WechatRequestMessageType extends Entity {
 }
 
 /**
- * Menu argument loader; Load a profile type by string.
+ * Menu argument loader; Load a wechat_request_message type by string.
  *
  * @param $type
- *   The machine-readable name of a profile type to load.
+ *   The machine-readable name of a wechat_request_message type to load.
  * @return
- *   A profile type array or FALSE if $type does not exist.
+ *   A wechat_request_message type array or FALSE if $type does not exist.
  */
 function wechat_request_message_type_load($type) {
   return wechat_request_message_get_types($type);
 }
 
 /**
- * Gets an array of all profile types, keyed by the type name.
+ * Gets an array of all wechat_request_message types, keyed by the type name.
  *
  * @param $type_name
  *   If set, the type with the given name is returned.
- * @return ProfileType[]
- *   Depending whether $type isset, an array of profile types or a single one.
+ * @return WechatRequestMessageType[]
+ *   Depending whether $type isset, an array of wechat_request_message types or a single one.
  */
 function wechat_request_message_get_types($type_name = NULL) {
   $types = entity_load_multiple_by_name('wechat_request_message_type', isset($type_name) ? array($type_name) : FALSE);
@@ -685,14 +685,14 @@ function wechat_request_message_get_types($type_name = NULL) {
 }
 
 /**
- * Saves a profile type to the db.
+ * Saves a wechat_request_message type to the db.
  */
 function wechat_request_message_type_save(WechatRequestMessageType $type) {
   $type->save();
 }
 
 /**
- * Deletes a profile type from.
+ * Deletes a wechat_request_message type from.
  */
 function wechat_request_message_type_delete(WechatRequestMessageType $type) {
   $type->delete();
@@ -700,24 +700,24 @@ function wechat_request_message_type_delete(WechatRequestMessageType $type) {
 
 
 /**
- * Menu argument loader; Load a profile type by string.
+ * Menu argument loader; Load a wechat_response_message type by string.
  *
  * @param $type
- *   The machine-readable name of a profile type to load.
+ *   The machine-readable name of a wechat_response_message type to load.
  * @return
- *   A profile type array or FALSE if $type does not exist.
+ *   A wechat_response_message type array or FALSE if $type does not exist.
  */
 function wechat_response_message_type_load($type) {
   return wechat_response_message_get_types($type);
 }
 
 /**
- * Gets an array of all profile types, keyed by the type name.
+ * Gets an array of all wechat_response_message types, keyed by the type name.
  *
  * @param $type_name
  *   If set, the type with the given name is returned.
  * @return ProfileType[]
- *   Depending whether $type isset, an array of profile types or a single one.
+ *   Depending whether $type isset, an array of wechat_response_message types or a single one.
  */
 function wechat_response_message_get_types($type_name = NULL) {
   $types = entity_load_multiple_by_name('wechat_response_message_type', isset($type_name) ? array($type_name) : FALSE);
@@ -725,21 +725,21 @@ function wechat_response_message_get_types($type_name = NULL) {
 }
 
 /**
- * Saves a profile type to the db.
+ * Saves a wechat_response_message type to the db.
  */
 function wechat_response_message_type_save(WechatResponseMessageType $type) {
   $type->save();
 }
 
 /**
- * Deletes a profile type from.
+ * Deletes a wechat_response_message type from.
  */
 function wechat_response_message_type_delete(WechatResponseMessageType $type) {
   $type->delete();
 }
 
 /**
- * Use a separate class for profile types so we can specify some defaults
+ * Use a separate class for wechat_response_message types so we can specify some defaults
  * modules may alter.
  */
 class WechatResponseMessageType extends Entity {
@@ -754,10 +754,10 @@ class WechatResponseMessageType extends Entity {
   }
 
   /**
-   * Returns whether the profile type is locked, thus may not be deleted or renamed.
+   * Returns whether the wechat_response_message type is locked, thus may not be deleted or renamed.
    *
-   * Profile types provided in code are automatically treated as locked, as well
-   * as any fixed profile type.
+   * Wechat response message types provided in code are automatically treated as locked, as well
+   * as any fixed wechat_response_message type.
    */
   public function isLocked() {
     return isset($this->status) && empty($this->is_new) && (($this->status & ENTITY_IN_CODE) || ($this->status & ENTITY_FIXED));
@@ -776,7 +776,7 @@ class WechatResponseMessageType extends Entity {
 }
 
 /**
- * Determines whether the given user has access to a breadcrumb.
+ * Determines whether the given user has access to a wechat_response_message.
  *
  * @param $op
  *   The operation being performed. One of 'view', 'update', 'create', 'delete'
@@ -797,7 +797,7 @@ function wechat_response_message_access($op, $message = NULL, $account = NULL) {
 }
 
 /**
- * Determines whether the given user has access to a breadcrumb.
+ * Determines whether the given user has access to a wechat_response_message.
  *
  * @param $op
  *   The operation being performed. One of 'view', 'update', 'create', 'delete'
@@ -825,7 +825,7 @@ function wechat_response_message_type_access($op, $message_type = NULL, $account
  * @param $reset
  *   A boolean indicating that the internal cache should be reset.
  * @return
- *   A fully-loaded $breadcrumb object or FALSE if it cannot be loaded.
+ *   A fully-loaded $wechat_response_message object or FALSE if it cannot be loaded.
  *
  * @see breadcrumb2_load_multiple()
  */
@@ -892,7 +892,7 @@ function wechat_response_message_save(WechatResponseMessage $message) {
 }
 
 /**
- * URI callback for breadcrumbs
+ * URI callback for wechat_response_message
  */
 function wechat_response_message_uri(WechatResponseMessage $message) {
   return array(
@@ -901,7 +901,7 @@ function wechat_response_message_uri(WechatResponseMessage $message) {
 }
 
 /**
- * The class used for breadcrumb entities
+ * The class used for wechat_response_message entities
  */
 class WechatResponseMessage extends Entity {
   /**
