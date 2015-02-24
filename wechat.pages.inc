@@ -16,6 +16,8 @@ function wechat_callback() {
  
   //drupal_set_message('123');
   $request_message = wechat_build_request_message($request_data);
+  $response_message = wechat_build_response_message($request_message);
+  //print debug($request_message);
   module_invoke_all('wechat_message', $we_obj);
   module_invoke_all('wechat_message_alter', $we_obj);
   if (!is_array($we_obj->Message(''))) { // add default option
@@ -41,6 +43,42 @@ function wechat_callback() {
   }
   $we_obj->reply();
   exit;
+}
+
+
+function wechat_build_response_message($request_message) {
+  //转换回来
+  $request_message_wrapper = entity_metadata_wrapper('wechat_request_message', $request_message);
+  $response_message = entity_create('wechat_response_message', array('msg_type' => 'text'));
+  $response_message_wrapper = entity_metadata_wrapper('wechat_response_message', $response_message);
+  $response_message_wrapper->to_user_name->set($request_message_wrapper->from_user_name->value());
+  $response_message_wrapper->from_user_name->set($request_message_wrapper->to_user_name->value());
+  $response_message_wrapper->create_time->set(REQUEST_TIME);
+  
+  module_invoke_all('wechat_build_response_message', $response_message, $request_message);
+  //default reply.
+  $wechat_content = $response_message_wrapper->wechat_content->value();
+  if ($response_message->msg_type == 'text' && empty($wechat_content)) {
+    if ($request_message->msg_type == 'event') {
+      if ($request_message_wrapper->wechat_event->value() == 'subscribe') {
+        $default_message_content = variable_get("wechat_follow_message", variable_get("wechat_default_message", 'Hi, WeChat!'));
+        $response_message_wrapper->wechat_content->set($default_message_content); 
+      }
+      elseif ($request_message_wrapper->wechat_event->value() == 'CLICK') {
+        $event = array();
+        $event['key'] = $request_message_wrapper->wechat_event_key->value();
+        $default_message_content = _wechat_menu_default_message($event);
+        $response_message_wrapper->wechat_content->set($default_message_content);
+      }
+    }
+    $wechat_content = $response_message_wrapper->wechat_content->value();	
+    if (empty($wechat_content)) {
+      $default_message_content = variable_get("wechat_default_message", "Hi, WeChat!");
+      $response_message_wrapper->wechat_content->set($default_message_content);
+    }
+  }
+  $response_message_wrapper->save(true);
+  return $response_message;
 }
 
 /**
