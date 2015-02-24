@@ -211,7 +211,7 @@ function wechat_response_message_obj_to_xml(WechatResponseMessage $message) {
     $result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $media_id, $title, $description);
   } 
   elseif ($message->msg_type == 'music') {
-    $media_id = $message_wrapper->wechat_media_id->value();
+    $media_id = $message_wrapper->wechat_thumb_media_id->value();
     $title = $message_wrapper->wechat_title->value();
     $description = $message_wrapper->wechat_description->value();
     $music_url = $message_wrapper->wechat_music_url->value();

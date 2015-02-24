@@ -755,6 +755,40 @@ function wechat_field_default_field_instances() {
       'weight' => 6,
     ),
   );
+  
+  // Exported field_instance: 'wechat_response_message-music-wechat_thumb_media_id'
+  $field_instances['wechat_response_message-music-wechat_thumb_media_id'] = array(
+    'bundle' => 'music',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 1,
+      ),
+    ),
+    'entity_type' => 'wechat_response_message',
+    'field_name' => 'wechat_thumb_media_id',
+    'label' => 'Thumb Media Id',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 7,
+    ),
+  );
 
   // Exported field_instance: 'wechat_response_message-music-field_music_url'
   $field_instances['wechat_response_message-music-wechat_music_url'] = array(
