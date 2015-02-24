@@ -294,6 +294,21 @@ function wechat_response_message_type_form_submit_delete(&$form, &$form_state) {
 }
 
 /**
+ * Returns a breadcrumb submission form.
+ */
+function wechat_response_message_add($type) {
+  $message = entity_create('wechat_response_message', array('msg_type' => $type));;
+
+  if (isset($_GET['rm_id'])) {
+    $message->rm_id = $_GET['rm_id'];
+  }
+
+  $output = drupal_get_form('wechat_response_message_edit_form', $message);
+
+  return $output;
+}
+
+/**
  * Form callback: create or edit a wechat_response_message.
  *
  * @param $message
@@ -301,14 +316,21 @@ function wechat_response_message_type_form_submit_delete(&$form, &$form_state) {
  */
 function wechat_response_message_edit_form($form, &$form_state, $message) {
   // Add the default field elements.
-  $form['to_user_name'] = array(
-    '#type' => 'textfield',
-    '#title' => t('To user name'),
-    '#default_value' => isset($message->to_user_name) ? $message->to_user_name : '',
-    '#maxlength' => 255,
-    '#required' => TRUE,
-    '#weight' => -5,
-  );
+  if (empty($message->rm_id)) {
+    $form['to_user_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('To user name'),
+      //'#default_value' => isset($message->to_user_name) ? $message->to_user_name : '',
+      '#maxlength' => 255,
+      '#required' => TRUE,
+      '#weight' => -5,
+    );
+  }
+  else{
+    $request_message = wechat_request_message_load($message->rm_id);
+    $message->to_user_name = $request_message->from_user_name;
+	$message->from_user_name = $request_message->to_user_name;
+  }
 
   // Add the field related form elements.
   $form_state['message'] = $message;
@@ -357,14 +379,27 @@ function wechat_response_message_edit_form_submit(&$form, &$form_state) {
   
   $message = &$form_state['message'];
   
-  $message->to_user_name = $form_state['values']['to_user_name'];
+  //$message->to_user_name = $form_state['values']['to_user_name'];
   
   // Notify field widgets.
   field_attach_submit('wechat_response_message', $message, $form, $form_state);
   
   // Save the breadcrumb
   wechat_response_message_save($message);
+  
+  $array_data = wechat_response_message_obj_to_array($message);
+  
+  $appid = variable_get('wechat_appid', "");
+  $appsecret =variable_get('wechat_appsecret', "");
+  $access_token = wechat_get_access_token($appid, $appsecret);
+  $we_obj = _wechat_init_obj();
+  $we_obj->checkAuth($appid, $appsecret, $access_token);
+  $result = $we_obj->sendCustomMessage($array_data);
+  //$result = $we_obj->http_post('https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' . $access_token, $json_data);
 
+  if (!empty($result)) {
+    //Todo: Error.
+  }
   drupal_set_message(t('wechat_response_message saved.'));
   $form_state['redirect'] = '';
 }

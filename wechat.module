@@ -59,7 +59,20 @@ function wechat_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
-  );  
+  );
+  
+  foreach (wechat_response_message_get_types() as $type) {
+    $type_url_str = str_replace('_', '-', $type->type);
+    $items['response-message/add/' . $type_url_str] = array(
+      'title' => $type->label,
+      'title callback' => 'check_plain',
+      'page callback' => 'wechat_response_message_add',
+      'page arguments' => array($type->type),
+      'access arguments' => array('administer wechat request message'),
+      //'description' => $type->description,
+      'file' => 'wechat.admin.inc',
+    );
+  }  
   return $items;
 }
 
@@ -302,7 +315,60 @@ function wechat_response_message_obj_to_json(WechatResponseMessage $message) {
     //Todo
 
   }  
-  return $result_str;
+  return $result_json;
+}
+
+function wechat_response_message_obj_to_array(WechatResponseMessage $message) {
+  $message_wrapper = entity_metadata_wrapper('wechat_response_message', $message);
+  $request_time = REQUEST_TIME;
+  $to_user_name = $message_wrapper->to_user_name->value();
+  $result_array = array();
+  $result_array["touser"] = $to_user_name;
+  
+  if ($message->msg_type == 'text') {
+    $result_array["msgtype"] = "text";
+    $content = $message_wrapper->wechat_content->value();
+    $result_array["text"] = array(
+      "content" => $content
+    );
+  }
+  elseif ($message->msg_type == 'image') {
+    $result_json .= '"msgtype":"image",';
+    $media_id = $message_wrapper->wechat_media_id->value();
+    $result_json .= '"image":{"media_id":"' . $media_id . '"}}';
+  }
+  elseif ($message->msg_type == 'voice') {
+    $result_json .= '"msgtype":"voice",';
+    $media_id = $message_wrapper->wechat_media_id->value();
+    $result_json .= '"voice":{"media_id":"' . $media_id . '"}}';
+  } 
+  elseif ($message->msg_type == 'video') {
+    $result_json .= '"msgtype":"video",';
+    $media_id = $message_wrapper->wechat_media_id->value();
+    $thumb_media_id = $message_wrapper->wechat_thumb_media_id->value();
+    $result_json .= '"video":{"media_id":"' . $media_id . '","thumb_media_id":"' . $thumb_media_id . '"}}';
+  }
+  elseif ($message->msg_type == 'music') {
+    $result_json .= '"msgtype":"music",';
+    $title = $message_wrapper->wechat_title->value();
+    $description = $message_wrapper->wechat_description->value();
+    $music_url = $message_wrapper->wechat_music_url->value();
+    $hq_music_url = $message_wrapper->wechat_hq_music_url->value();
+    $thumb_media_id = $message_wrapper->wechat_thumb_media_id->value();
+    $result_json .= '"music":{';
+    $result_json .= '"title":"' . $title . '",';
+    $result_json .= '"description":"' . $description . '",';
+    $result_json .= '"musicurl":"' . $music_url . '",';
+    $result_json .= '"hqmusicurl":"' . $hq_music_url . '",';
+    $result_json .= '"thumb_media_id":"' . $thumb_media_id . '"';
+    $result_json .= '}}';
+  }
+  elseif ($message->msg_type == 'news') {
+    $result_json .= '"msgtype":"news",';
+    //Todo
+
+  }  
+  return $result_array;
 }
 
 
@@ -1219,22 +1285,19 @@ function wechat_connect_user($uid, $openid) {
 
 function wechat_get_access_token($appid='', $appsecret='') {
   $access_token = FALSE;
-  $result = db_query("SELECT * FROM {wechat_access_token} WHERE app_id=:appid", array(':appid' => $appid));
+  $access_token_object = db_query("SELECT * FROM {wechat_access_token} WHERE app_id=:appid", array(':appid' => $appid))->fetchObject();
   $current = time();
-  if (!$result) {
-   
-  }
-  else{
-    $access_token_object = $result->fetchObject();
-    
+  //print debug($access_token_object);
+  if (isset($access_token_object->token)) { 
     $expire = $access_token_object->expire;
     $create_time = $access_token_object->create_time;
     if ($create_time + $expire - 30 > $current) {
       $access_token = $access_token_object->token;
+      //drupal_set_message('reuse:123');
       return $access_token;
     }
   }
-
+  //drupal_set_message('createnew:123');
   $we_obj = _wechat_init_obj();
   $access_token = $we_obj->checkAuth($appid, $appsecret);
 
