@@ -388,7 +388,8 @@ function wechat_response_message_edit_form_submit(&$form, &$form_state) {
   wechat_response_message_save($message);
   
   $array_data = wechat_response_message_obj_to_array($message);
-  
+  $message->sendCustomMessage();
+  /*
   $appid = variable_get('wechat_appid', "");
   $appsecret =variable_get('wechat_appsecret', "");
   $access_token = wechat_get_access_token($appid, $appsecret);
@@ -400,6 +401,7 @@ function wechat_response_message_edit_form_submit(&$form, &$form_state) {
   if (!empty($result)) {
     //Todo: Error.
   }
+  */
   drupal_set_message(t('wechat_response_message saved.'));
   $form_state['redirect'] = '';
 }

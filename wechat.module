@@ -1094,7 +1094,26 @@ class WechatResponseMessage extends Entity {
   public function send() {
     $result_str = wechat_response_message_obj_to_xml($this);
     echo $result_str;
-  }  
+  }
+
+  public function sendCustomMessage() {
+    $array_data = wechat_response_message_obj_to_array($this);
+  
+    $appid = variable_get('wechat_appid', "");
+    $appsecret =variable_get('wechat_appsecret', "");
+    $access_token = wechat_get_access_token($appid, $appsecret);
+    $we_obj = _wechat_init_obj();
+    $we_obj->checkAuth($appid, $appsecret, $access_token);
+    $result = $we_obj->sendCustomMessage($array_data);
+ 
+    if (!empty($result)) {
+      //Todo: Error.
+      return $result;
+    }
+    else{
+      return FALSE;
+    }
+  }
 }
 
 /**
