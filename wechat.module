@@ -113,6 +113,7 @@ function wechat_build_request_message($request_data) {
   }
   elseif ($xml_obj->MsgType == 'image') {
     $message_wrapper->wechat_pic_url->set($xml_obj->PicUrl);
+    $message_wrapper->wechat_media_id->set($xml_obj->MediaId);
   }
   elseif ($xml_obj->MsgType == 'voice') {
     $message_wrapper->wechat_media_id->set($xml_obj->MediaId);
