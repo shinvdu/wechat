@@ -81,7 +81,15 @@ function wechat_menu() {
     'access arguments' => array('access administration pages'),
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
-  );  
+  );
+  $items['wechat/userupdate/%'] = array(
+    'title' => 'update wechat user info',
+    'page callback' => 'wechat_update_user_info',
+    'page arguments' => array(2),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'wechat.pages.inc',
+  );
   foreach (wechat_response_message_get_types() as $type) {
     $type_url_str = str_replace('_', '-', $type->type);
     $items['response-message/add/' . $type_url_str] = array(
@@ -1312,7 +1320,7 @@ function wechat_connect_user($uid, $openid) {
   if ($user_info) {
     $wechat_user = array(
       'uid' => $uid,
-      'openid' => $user_info['subscribe'],
+      'subscribe' => $user_info['subscribe'],
       'openid' => $user_info['openid'],
       'nickname' => $user_info['nickname'],
       'sex' => $user_info['sex'],

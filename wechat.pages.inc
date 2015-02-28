@@ -321,3 +321,67 @@ function wechat_user_binding_form_submit($form, &$form_state) {
   user_login_finalize($form_state);
 }
 
+function wechat_get_user_list() {
+  $next_openid = isset($_GET['next_openid']) ? $_GET['next_openid'] : '';
+  $output = "";
+  $we_obj = _wechat_init_obj();
+  //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
+  $access_token = wechat_get_access_token();
+  $we_obj->checkAuth('', '', $access_token);
+  $result = $we_obj->getUserList($next_openid);
+  if (empty($result)) {
+    $output = "没有找到关注的微信用户";
+    return $output;
+  }
+  print debug($result);
+  if (!empty($result['total'])) {
+    $output .= "<p>关注的微信用户总数:" . $result['total'] . '</p>';
+    $output .= "<p>本次获取的微信用户总数:" . $result['count'] . '</p>';
+    $output .= "<p>next_openid:" . $result['next_openid'] . '</p>';
+    $output .= "<table>";
+	$output .="<tr><td>序号</td><td>openid</td><td>更新用户信息操作</td></tr>";
+    foreach ($result['data']['openid'] as $key => $openid) {
+      $output .="<tr><td>" . $key . "</td><td>" . $openid .  "</td><td>" .l('更新', 'wechat/userupdate/' . $openid) . "</td></tr>";
+    }
+    $output .= "</table>";
+  } 
+  
+  return $output;
+}
+
+function wechat_update_user_info($openid) {
+  $we_obj = _wechat_init_obj();
+  //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
+  $access_token = wechat_get_access_token();
+  $we_obj->checkAuth('', '', $access_token);
+  $user_info = $we_obj->getUserInfo($openid);
+  $output = "";
+  if ($user_info) {
+    db_merge('wechat_user')
+      ->key(array('openid' => $user_info['openid']))
+      ->updateFields(array(
+          'nickname' => $user_info['nickname'],
+          'sex' => $user_info['sex'],
+          'province' => $user_info['province'],
+          'city' => $user_info['city'],
+          'country' => $user_info['country'],
+          'headimgurl' => $user_info['headimgurl'],		  
+      ))
+      ->insertFields(array(
+          'nickname' => $user_info['nickname'],
+          'sex' => $user_info['sex'],
+          'province' => $user_info['province'],
+          'city' => $user_info['city'],
+          'country' => $user_info['country'],
+          'headimgurl' => $user_info['headimgurl'],
+          'uid' => 0,
+          'subscribe' => $user_info['subscribe'],
+          'subscribe_time' => $user_info['subscribe_time'],		  
+      ))	  
+      ->execute();	
+      $output .= t("更新成功，当前昵称：") . $user_info['nickname'];
+
+  }
+  return $output;
+}
+
