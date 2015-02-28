@@ -329,7 +329,7 @@ function wechat_response_message_edit_form($form, &$form_state, $message) {
   else{
     $request_message = wechat_request_message_load($message->rm_id);
     $message->to_user_name = $request_message->from_user_name;
-	$message->from_user_name = $request_message->to_user_name;
+    $message->from_user_name = $request_message->to_user_name;
   }
 
   // Add the field related form elements.

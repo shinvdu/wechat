@@ -230,6 +230,13 @@ function wechat_schema() {
         'length' => 255,
         'not null' => TRUE,
       ),
+      'subscribe' => array(
+        'description' => 'subscribe',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'nickname' => array(
         'description' => 'nickname',
         'type' => 'varchar',
@@ -272,11 +279,15 @@ function wechat_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'subscribe_time' => array(
+        'description' => t('subscribe time.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
     ),
-    'unique keys' => array(
-      'openid' => array('openid'),
-      'uid' => array('uid'),
-    ),
+    'primary key' => array('openid'),
   );
   $schema['wechat_access_token'] = array(
     'description' => 'Stores wechat access token.',
@@ -334,6 +345,29 @@ function wechat_uninstall() {
   variable_del("wechat_token");
   variable_del("wechat_appid");
   variable_del("wechat_appsecret");
+  
+  field_delete_field('wechat_content');
+  field_delete_field('wechat_description');
+  field_delete_field('wechat_event');
+  field_delete_field('wechat_event_key');
+  field_delete_field('wechat_format');
+  field_delete_field('wechat_hq_music_url');
+  field_delete_field('wechat_label');
+  field_delete_field('wechat_latitude');
+  field_delete_field('wechat_location_x');
+  field_delete_field('wechat_location_y');
+  field_delete_field('wechat_longitude');
+  field_delete_field('wechat_media_id');
+  field_delete_field('wechat_music_url');
+  field_delete_field('wechat_pic_url');
+  field_delete_field('wechat_precision');
+  field_delete_field('wechat_recognition');
+  field_delete_field('wechat_scale');
+  field_delete_field('wechat_thumb_media_id');
+  field_delete_field('wechat_ticket');
+  field_delete_field('wechat_title');
+  field_delete_field('wechat_url');
+  field_delete_field('wechat_article');
 }
 
 

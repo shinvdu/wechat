@@ -60,7 +60,14 @@ function wechat_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
   );
-  
+  $items['user/%user/wechat-binding'] = array(
+    'title' => 'Wechat binding',
+    'page callback' => 'wechat_user_binding_from_drupal',
+    'page arguments' => array(1),
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'wechat.pages.inc',
+  );  
   foreach (wechat_response_message_get_types() as $type) {
     $type_url_str = str_replace('_', '-', $type->type);
     $items['response-message/add/' . $type_url_str] = array(
@@ -1281,12 +1288,14 @@ function wechat_snsapi_userinfo($path, $onerror) {
  * connect user with wechat openid
  */
 function wechat_connect_user($uid, $openid) {
-  db_query('delete FROM {wechat_user} WHERE uid=:uid OR openid=:openid', array(':uid' => $uid, ':openid' => $openid));
+  //允许uid可以为0，openid是唯一的
+  db_query('delete FROM {wechat_user} WHERE openid=:openid', array(':openid' => $openid));
   $we_obj = _wechat_init_obj();
   $user_info = $we_obj->getUserInfo($openid);
   if ($user_info) {
     $wechat_user = array(
       'uid' => $uid,
+      'openid' => $user_info['subscribe'],
       'openid' => $user_info['openid'],
       'nickname' => $user_info['nickname'],
       'sex' => $user_info['sex'],
@@ -1294,6 +1303,7 @@ function wechat_connect_user($uid, $openid) {
       'city' => $user_info['city'],
       'country' => $user_info['country'],
       'headimgurl' => $user_info['headimgurl'],
+      'subscribe_time' => $user_info['subscribe_time'],
       'extend' => array(),
     );
     if (drupal_write_record('wechat_user', $wechat_user)) {
@@ -1305,6 +1315,14 @@ function wechat_connect_user($uid, $openid) {
 
 function wechat_get_access_token($appid='', $appsecret='') {
   $access_token = FALSE;
+  if (empty($appid)) {
+    $appid = variable_get('wechat_appid', "");
+  }
+  
+  if (!empty($appsecret)) {
+    $appsecret =variable_get('wechat_appsecret', "");
+  }
+  
   $access_token_object = db_query("SELECT * FROM {wechat_access_token} WHERE app_id=:appid", array(':appid' => $appid))->fetchObject();
   $current = time();
   //print debug($access_token_object);
@@ -1336,4 +1354,43 @@ function wechat_get_access_token($appid='', $appsecret='') {
     $query->execute();
   }
   return $access_token;
+}
+
+/**
+ * Implementation of hook_wechat_build_response_message().
+ */
+function wechat_wechat_build_response_message($response_message, $request_message) {
+  //这里主要是实现用户绑定。
+  //watchdog('wechat', '进入hook_wechat_build_response_message'); 
+  $request_message_wrapper = entity_metadata_wrapper('wechat_request_message', $request_message);
+  $response_message_wrapper = entity_metadata_wrapper('wechat_response_message', $response_message);
+  if ($request_message->msg_type == 'event') {
+    //watchdog('wechat', '进入event'); 
+    //用户关注我们的情况
+    if ($request_message_wrapper->wechat_event->value() == 'subscribe') {
+
+    }
+    //用户扫描二维码，绑定账号
+	$wechat_event = $request_message_wrapper->wechat_event->value();
+    //watchdog('wechat', 'wechat_event:' .$wechat_event); 
+    //注意，这里返回的是大写的SCAN，原来用的小写，不行
+    if ($request_message_wrapper->wechat_event->value() == 'SCAN') {
+      //watchdog('wechat', '进入scan');
+      $event_key = $request_message_wrapper->wechat_event_key->value();
+      //watchdog('wechat', 'event_key：' . $event_key);
+      if (!empty($event_key)) {
+        $uid = $event_key;
+        $openid = $request_message->from_user_name;
+        $result = wechat_connect_user($uid, $openid);
+        if (!empty($result)) {
+          $message_content = t('已将您的微信号，与系统用户绑定，系统用户Id：') . $uid;
+          $response_message_wrapper->wechat_content->set($message_content);            
+        }
+        else {
+          $message_content = t('未能将您的微信号，与系统用户绑定，尝试绑定的系统用户Id：') . $uid;
+          $response_message_wrapper->wechat_content->set($message_content); 
+        }
+      }
+    }
+  }
 }

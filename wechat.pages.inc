@@ -195,3 +195,36 @@ function _wechat_menu_default_message($event) {
   }
   return '';
 }
+
+/**
+ * 从Drupal端绑定微信
+ */
+function wechat_user_binding_from_drupal($current_user) {
+  global $user;
+  //用户只能访问自己的微信绑定。
+  if ($user->uid != $current_user->uid) {
+    drupal_set_message(t("您无权访问别人的微信绑定页面."));
+    drupal_goto('user/' . $user->uid);
+  }
+  $output = "";
+  $wechat_user = db_query('SELECT * FROM {wechat_user} WHERE uid=:uid', array(':uid' => $current_user->uid))->fetchObject();
+  //已经绑定了微信账号。
+  if (isset($wechat_user->openid)) {
+    $output .= '<p>' . t('您已经绑定了微信账号:') . $wechat_user->openid . '</p>';
+  }
+  else {
+    $output .= '<p>' . t('使用微信，扫一扫下面的二维码，即可绑定微信账号.') . '</p>';
+    $img_src = '';
+    $access_token = wechat_get_access_token();
+    $we_obj = _wechat_init_obj();
+    //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了。
+    $we_obj->checkAuth('', '', $access_token);
+    //我们使用当前用户的uid作为scene_id，这样用户扫描后，我们收到消息，可以通过scene_id，获取到当前的uid。
+    $ticket_array = $we_obj->getQRCode($current_user->uid);
+    if (!empty($ticket_array['ticket'])) {
+      $img_src = $we_obj->getQRUrl($ticket_array['ticket']);
+      $output .= '<p><img src="' . $img_src . '" /></p>';
+    }
+  }
+  return $output;
+}
