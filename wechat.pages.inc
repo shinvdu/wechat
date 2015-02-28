@@ -333,7 +333,7 @@ function wechat_get_user_list() {
     $output = "没有找到关注的微信用户";
     return $output;
   }
-  print debug($result);
+  //print debug($result);
   if (!empty($result['total'])) {
     $output .= "<p>关注的微信用户总数:" . $result['total'] . '</p>';
     $output .= "<p>本次获取的微信用户总数:" . $result['count'] . '</p>';
@@ -382,6 +382,30 @@ function wechat_update_user_info($openid) {
       $output .= t("更新成功，当前昵称：") . $user_info['nickname'];
 
   }
+  return $output;
+}
+
+function wechat_get_groups() {
+  $output = "";
+  $we_obj = _wechat_init_obj();
+  //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
+  $access_token = wechat_get_access_token();
+  $we_obj->checkAuth('', '', $access_token);
+  $result = $we_obj->getGroup();
+  if (empty($result)) {
+    $output = "没有找到微信分组";
+    return $output;
+  }
+  //print debug($result);
+  if (!empty($result['groups'])) {
+    $output .= "<table>";
+	$output .="<tr><td>id</td><td>name</td><td>用户总数</td></tr>";
+    foreach ($result['groups'] as $key => $group) {
+      $output .="<tr><td>" . $group['id'] . "</td><td>" . $group['name'] .  "</td><td>" . $group['count'] . "</td></tr>";
+    }
+    $output .= "</table>";
+  } 
+  
   return $output;
 }
 
