@@ -74,6 +74,13 @@ function wechat_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
+  );
+  $items['wechat/userlist'] = array(
+    'title' => 'wechat user list',
+    'page callback' => 'wechat_get_user_list',
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'wechat.pages.inc',
   );  
   foreach (wechat_response_message_get_types() as $type) {
     $type_url_str = str_replace('_', '-', $type->type);
@@ -1298,6 +1305,9 @@ function wechat_connect_user($uid, $openid) {
   //允许uid可以为0，openid是唯一的
   db_query('delete FROM {wechat_user} WHERE openid=:openid', array(':openid' => $openid));
   $we_obj = _wechat_init_obj();
+  //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
+  $access_token = wechat_get_access_token();
+  $we_obj->checkAuth('', '', $access_token);
   $user_info = $we_obj->getUserInfo($openid);
   if ($user_info) {
     $wechat_user = array(
