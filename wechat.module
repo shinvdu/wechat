@@ -67,6 +67,13 @@ function wechat_menu() {
     'access callback' => TRUE,
     'type' => MENU_LOCAL_TASK,
     'file' => 'wechat.pages.inc',
+  );
+  $items['wechat/binding'] = array(
+    'title' => 'Account binding',
+    'page callback' => 'wechat_user_binding_from_wechat',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'wechat.pages.inc',
   );  
   foreach (wechat_response_message_get_types() as $type) {
     $type_url_str = str_replace('_', '-', $type->type);

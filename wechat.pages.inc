@@ -119,6 +119,9 @@ function wechat_auth() {
   if ($curuser = wechat_get_user_by_openid($access_data['openid'])) {
     _wechat_user_login($curuser->uid);
     // todo update user info
+    if (empty($destination)) {
+      $destination = 'user/' . $curuser->uid;
+    }
     drupal_goto($destination);
   }
   
@@ -228,3 +231,93 @@ function wechat_user_binding_from_drupal($current_user) {
   }
   return $output;
 }
+/**
+ * 从微信端访问Drupal绑定账户
+ */
+function wechat_user_binding_from_wechat() {
+  $output = "";
+  global $user;
+  if ($user->uid > 0) {
+    $output = t('您已经成功登陆，已经绑定成功.');
+    return $output;
+  }
+  $openid = isset($_GET['openid']) ? $_GET['openid'] : '';
+  if (empty($openid)){
+    $output = t('非法的绑定链接.');
+	return $output;
+  }
+  
+  $current_user = wechat_get_user_by_openid($openid);
+  if (!empty($current_user->uid)) {
+    _wechat_user_login($current_user->uid);
+    $output = t('您的微信号已经绑定了系统用户.');
+	return $output;    
+  }
+  else {
+    $binding_form = drupal_get_form('wechat_user_binding_form');
+    $output .= drupal_render($binding_form);
+	return $output;
+  }
+}
+/**
+ * Form builder; the main wechat user binding form.
+ *
+ * @ingroup forms
+ */
+function wechat_user_binding_form($form, &$form_state){
+  global $user;
+
+  // If we are already logged on, go to the user page instead.
+  if ($user->uid) {
+    drupal_goto('user/' . $user->uid);
+  }
+  
+  $openid = isset($_GET['openid']) ? $_GET['openid'] : '';
+  // openid:
+  $form['openid'] = array('#type' => 'value',
+    '#value' => $openid,
+  );
+  // Display login form:
+  $form['name'] = array('#type' => 'textfield',
+    '#title' => t('Username'),
+    '#size' => 60,
+    '#maxlength' => USERNAME_MAX_LENGTH,
+    '#required' => TRUE,
+  );
+
+  $form['name']['#description'] = t('Enter your @s username.', array('@s' => variable_get('site_name', 'Drupal')));
+  $form['pass'] = array('#type' => 'password',
+    '#title' => t('Password'),
+    '#description' => t('Enter the password that accompanies your username.'),
+    '#required' => TRUE,
+  );
+  $form['#validate'] = user_login_default_validators();
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Account binding'));
+
+  return $form;
+}
+
+/**
+ * Submit handler for the wechat_user_binding_form. Load $user object and perform standard login
+ * tasks. The user is then redirected to the My Account page. Setting the
+ * destination in the query string overrides the redirect.
+ */
+function wechat_user_binding_form_submit($form, &$form_state) {
+  global $user;
+  $user = user_load($form_state['uid']);
+  $openid = $form_state['values']['openid'];
+  $result = wechat_connect_user($user->uid, $openid);
+  if (!empty($result)) {
+    $message = t('已将您的微信号，与系统用户绑定，绑定的微信openid：') . $openid;
+    drupal_set_message($message);       
+  }
+  else {
+    $message = t('未能将您的微信号，与系统用户绑定，尝试绑定的微信openid：') . $openid;
+    drupal_set_message($message);
+  }  
+  $form_state['redirect'] = 'user/' . $user->uid;
+
+  user_login_finalize($form_state);
+}
+
