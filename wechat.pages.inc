@@ -242,21 +242,21 @@ function wechat_user_binding_from_wechat() {
     return $output;
   }
   $openid = isset($_GET['openid']) ? $_GET['openid'] : '';
-  if (empty($openid)){
+  if (empty($openid)) {
     $output = t('非法的绑定链接.');
-	return $output;
+    return $output;
   }
   
   $current_user = wechat_get_user_by_openid($openid);
   if (!empty($current_user->uid)) {
     _wechat_user_login($current_user->uid);
     $output = t('您的微信号已经绑定了系统用户.');
-	return $output;    
+    return $output;    
   }
   else {
     $binding_form = drupal_get_form('wechat_user_binding_form');
     $output .= drupal_render($binding_form);
-	return $output;
+    return $output;
   }
 }
 /**
@@ -264,7 +264,7 @@ function wechat_user_binding_from_wechat() {
  *
  * @ingroup forms
  */
-function wechat_user_binding_form($form, &$form_state){
+function wechat_user_binding_form($form, &$form_state) {
   global $user;
 
   // If we are already logged on, go to the user page instead.
@@ -339,9 +339,9 @@ function wechat_get_user_list() {
     $output .= "<p>本次获取的微信用户总数:" . $result['count'] . '</p>';
     $output .= "<p>next_openid:" . $result['next_openid'] . '</p>';
     $output .= "<table>";
-	$output .="<tr><td>序号</td><td>openid</td><td>更新用户信息操作</td></tr>";
+    $output .="<tr><td>序号</td><td>openid</td><td>更新用户信息操作</td></tr>";
     foreach ($result['data']['openid'] as $key => $openid) {
-      $output .="<tr><td>" . $key . "</td><td>" . $openid .  "</td><td>" .l('更新', 'wechat/userupdate/' . $openid) . "</td></tr>";
+      $output .= "<tr><td>" . $key . "</td><td>" . $openid . "</td><td>" . l(t('更新'), 'wechat/userupdate/' . $openid) . "</td></tr>";
     }
     $output .= "</table>";
   } 
@@ -365,7 +365,7 @@ function wechat_update_user_info($openid) {
           'province' => $user_info['province'],
           'city' => $user_info['city'],
           'country' => $user_info['country'],
-          'headimgurl' => $user_info['headimgurl'],		  
+          'headimgurl' => $user_info['headimgurl'],
       ))
       ->insertFields(array(
           'nickname' => $user_info['nickname'],
@@ -376,9 +376,9 @@ function wechat_update_user_info($openid) {
           'headimgurl' => $user_info['headimgurl'],
           'uid' => 0,
           'subscribe' => $user_info['subscribe'],
-          'subscribe_time' => $user_info['subscribe_time'],		  
-      ))	  
-      ->execute();	
+          'subscribe_time' => $user_info['subscribe_time'],
+      ))
+      ->execute();
       $output .= t("更新成功，当前昵称：") . $user_info['nickname'];
 
   }
@@ -399,13 +399,128 @@ function wechat_get_groups() {
   //print debug($result);
   if (!empty($result['groups'])) {
     $output .= "<table>";
-	$output .="<tr><td>id</td><td>name</td><td>用户总数</td></tr>";
+    $output .="<tr><td>id</td><td>name</td><td>用户总数</td><td>操作</td></tr>";
     foreach ($result['groups'] as $key => $group) {
-      $output .="<tr><td>" . $group['id'] . "</td><td>" . $group['name'] .  "</td><td>" . $group['count'] . "</td></tr>";
+      $output .= "<tr><td>" . $group['id'] . "</td><td>" . $group['name'] . "</td><td>" . $group['count'] . "</td><td>" . l('编辑', 'wechat/group/edit/' . $group['id'] . '/' . $group['name']) . "</td></tr>";
     }
     $output .= "</table>";
   } 
   
   return $output;
+}
+
+function wechat_group_add_form() {
+
+  $form['name'] = array('#type' => 'textfield',
+    '#title' => t('Group name'),
+    '#size' => 60,
+    '#required' => TRUE,
+  );
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Submit'));
+
+  return $form;
+}
+
+function wechat_group_add_form_submit($form, &$form_state) {
+  $name = $form_state['values']['name'];
+  $output = "";
+  $we_obj = _wechat_init_obj();
+  //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
+  $access_token = wechat_get_access_token();
+  $we_obj->checkAuth('', '', $access_token);
+  $result = $we_obj->createGroup($name);
+  if (!empty($result['group'])) {
+    drupal_set_message('id:' . $result['group']['id']);
+    drupal_set_message('name:' . $result['group']['name']);
+  }
+  $form_state['redirect'] = 'wechat/groups';
+}
+
+function wechat_group_edit_form($form, &$form_state, $id, $name) {
+
+  $form['id'] = array('#type' => 'textfield',
+    '#title' => t('Group ID'),
+    '#size' => 60,
+    '#default_value' => $id,
+    '#disabled' => TRUE,
+    '#required' => TRUE,
+  );
+  
+  $form['name'] = array('#type' => 'textfield',
+    '#title' => t('Group name'),
+    '#size' => 60,
+    '#default_value' => $name,
+    '#required' => TRUE,
+  );
+  
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Submit'));
+
+  return $form;
+}
+
+function wechat_group_edit_form_submit($form, &$form_state) {
+  $id = $form_state['values']['id'];
+  $name = $form_state['values']['name'];
+  $output = "";
+  $we_obj = _wechat_init_obj();
+  //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
+  $access_token = wechat_get_access_token();
+  $we_obj->checkAuth('', '', $access_token);
+  $result = $we_obj->updateGroup($id, $name);
+  if (!empty($result)) {
+    drupal_set_message(t('update success'));
+  }
+  else {
+    drupal_set_message(t('update failed, reason:') . $we_obj->errMsg);
+  }
+  $form_state['redirect'] = 'wechat/groups';
+}
+
+function wechat_group_member_update_form($form, &$form_state, $openid) {
+
+  $form['openid'] = array('#type' => 'textfield',
+    '#title' => t('openid'),
+    '#size' => 60,
+    '#default_value' => $openid,
+    '#disabled' => TRUE,
+    '#required' => TRUE,
+  );
+  $group_options = array(
+    '0' => '未分组',
+    '1' => '黑名单',
+    '2' => '星标组',
+  );
+  $form['groupid'] = array('#type' => 'select',
+    '#title' => t('Group'),
+    '#options' => $group_options,
+    '#default_value' => 0,
+    '#required' => TRUE,
+  );
+  
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Submit'));
+
+  return $form;
+}
+
+function wechat_group_member_update_form_submit($form, &$form_state) {
+  $openid = $form_state['values']['openid'];
+  $groupid = $form_state['values']['groupid'];
+  $output = "";
+  $we_obj = _wechat_init_obj();
+  //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
+  $access_token = wechat_get_access_token();
+  $we_obj->checkAuth('', '', $access_token);
+  $result = $we_obj->updateGroupMembers($groupid, $openid);
+  if (!empty($result)) {
+    drupal_set_message(t('update success'));
+  }
+  else {
+    drupal_set_message(t('update failed, reason:') . $we_obj->errMsg);
+  }
+  $form_state['redirect'] = 'wechat/userlist';
 }
 

@@ -96,6 +96,30 @@ function wechat_menu() {
     'access arguments' => array('access administration pages'),
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
+  );
+  $items['wechat/group/add'] = array(
+    'title' => 'Create wechat group',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wechat_group_add_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'wechat.pages.inc',
+  );
+  $items['wechat/group/edit/%/%'] = array(
+    'title' => 'Create wechat group',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wechat_group_edit_form', 3, 4),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'wechat.pages.inc',
+  );
+  $items['wechat/group/member/update/%'] = array(
+    'title' => 'Update user group',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wechat_group_member_update_form', 4),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'wechat.pages.inc',
   );  
   foreach (wechat_response_message_get_types() as $type) {
     $type_url_str = str_replace('_', '-', $type->type);
@@ -1403,7 +1427,7 @@ function wechat_wechat_build_response_message($response_message, $request_messag
 
     }
     //用户扫描二维码，绑定账号
-	$wechat_event = $request_message_wrapper->wechat_event->value();
+    $wechat_event = $request_message_wrapper->wechat_event->value();
     //watchdog('wechat', 'wechat_event:' .$wechat_event); 
     //注意，这里返回的是大写的SCAN，原来用的小写，不行
     if ($request_message_wrapper->wechat_event->value() == 'SCAN') {
