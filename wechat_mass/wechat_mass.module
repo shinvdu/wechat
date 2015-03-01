@@ -1,0 +1,47 @@
+<?php
+/**
+ * @file
+ * Code for the Wechat mass feature.
+ */
+
+include_once 'wechat_mass.features.inc';
+
+function wechat_mass_node_presave($node) {
+  if ($node->type == 'wechat_mass_message' ) {
+    $node_wrapper = entity_metadata_wrapper('node', $node); 
+    $message_type = $node_wrapper->field_message_type->value();
+    $data = array('filter' => array('is_to_all' => false, 'group_id' => '0'));
+
+    $we_obj = _wechat_init_obj();
+    //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
+    $access_token = wechat_get_access_token();
+    $we_obj->checkAuth('', '', $access_token);
+	
+    if ($message_type == 'text' ) {
+      $data['msgtype'] = 'text';
+      $content = $node_wrapper->body->value->value(array('decode' => TRUE));
+      $data['text']['content'] = trim($content);
+      $result = $we_obj->sendGroupMassMessage($data);
+	  //print debug($data);
+	  //print debug($we_obj);
+      if(empty($result)){
+        $node->status = 0;
+        drupal_set_message(t("微信群发失败"));		
+      }
+      else {
+        $node_wrapper->field_errcode->set($result['errcode']);
+        $node_wrapper->field_errmsg->set($result['errmsg']);
+        $node_wrapper->field_msg_id->set($result['msg_id']);
+        drupal_set_message(t("微信群发成功"));
+      }	  
+    }
+  }
+}
+
+function wechat_mass_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'wechat_mass_message_node_form') {
+    $form['#attached']['css'] = array(
+      drupal_get_path('module', 'wechat_mass') . '/wechat_mass.css',
+    );
+  }
+}
