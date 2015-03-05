@@ -1234,6 +1234,239 @@ function wechat_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'wechat_request_message-image-wechat_image'
+  $field_instances['wechat_request_message-image-wechat_image'] = array(
+    'bundle' => 'image',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 3,
+      ),
+    ),
+    'entity_type' => 'wechat_request_message',
+    'field_name' => 'wechat_image',
+    'label' => 'Wechat Image',
+    'required' => 0,
+    'settings' => array(
+      'alt_field' => 0,
+      'default_image' => 0,
+      'file_directory' => 'wechat/request/images',
+      'file_extensions' => 'png gif jpg jpeg',
+      'max_filesize' => '',
+      'max_resolution' => '',
+      'min_resolution' => '',
+      'title_field' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'image',
+      'settings' => array(
+        'preview_image_style' => 'thumbnail',
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'image_image',
+      'weight' => 5,
+    ),
+  );
+
+  // Exported field_instance: 'wechat_request_message-video-wechat_video'
+  $field_instances['wechat_request_message-video-wechat_video'] = array(
+    'bundle' => 'video',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_default',
+        'weight' => 2,
+      ),
+    ),
+    'entity_type' => 'wechat_request_message',
+    'field_name' => 'wechat_video',
+    'label' => 'wechat video',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 0,
+      'file_directory' => 'wechat/request/videos',
+      'file_extensions' => 'mp4',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'wechat_request_message-voice-wechat_voice'
+  $field_instances['wechat_request_message-voice-wechat_voice'] = array(
+    'bundle' => 'voice',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_default',
+        'weight' => 3,
+      ),
+    ),
+    'entity_type' => 'wechat_request_message',
+    'field_name' => 'wechat_voice',
+    'label' => 'wechat voice',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 0,
+      'file_directory' => 'wechat/request/voices',
+      'file_extensions' => 'amr mp3',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'wechat_response_message-image-wechat_image'
+  $field_instances['wechat_response_message-image-wechat_image'] = array(
+    'bundle' => 'image',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 1,
+      ),
+    ),
+    'entity_type' => 'wechat_response_message',
+    'field_name' => 'wechat_image',
+    'label' => 'Wechat Image',
+    'required' => 0,
+    'settings' => array(
+      'alt_field' => 0,
+      'default_image' => 0,
+      'file_directory' => 'wechat/response/images',
+      'file_extensions' => 'png gif jpg jpeg',
+      'max_filesize' => '',
+      'max_resolution' => '',
+      'min_resolution' => '',
+      'title_field' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'image',
+      'settings' => array(
+        'preview_image_style' => 'thumbnail',
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'image_image',
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'wechat_response_message-video-wechat_video'
+  $field_instances['wechat_response_message-video-wechat_video'] = array(
+    'bundle' => 'video',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_default',
+        'weight' => 2,
+      ),
+    ),
+    'entity_type' => 'wechat_response_message',
+    'field_name' => 'wechat_video',
+    'label' => 'wechat video',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 0,
+      'file_directory' => 'wechat/response/videos',
+      'file_extensions' => 'mp4',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 6,
+    ),
+  );
+
+  // Exported field_instance: 'wechat_response_message-voice-wechat_voice'
+  $field_instances['wechat_response_message-voice-wechat_voice'] = array(
+    'bundle' => 'voice',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_default',
+        'weight' => 1,
+      ),
+    ),
+    'entity_type' => 'wechat_response_message',
+    'field_name' => 'wechat_voice',
+    'label' => 'wechat voice',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 0,
+      'file_directory' => 'wechat/response/voices',
+      'file_extensions' => 'mp3 amr',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 4,
+    ),
+  );
+  
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Content of wechat message');
