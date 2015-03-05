@@ -161,6 +161,7 @@ function wechat_build_request_message($request_data) {
   $message_wrapper = entity_metadata_wrapper('wechat_request_message', $message);
   $message_wrapper->to_user_name->set($xml_obj->ToUserName);
   $message_wrapper->from_user_name->set($xml_obj->FromUserName);
+  $message_wrapper->create_time->set(time());
   if ($xml_obj->MsgType == 'event') {
     $message_wrapper->msg_id->set('');
   }
@@ -174,15 +175,94 @@ function wechat_build_request_message($request_data) {
   elseif ($xml_obj->MsgType == 'image') {
     $message_wrapper->wechat_pic_url->set($xml_obj->PicUrl);
     $message_wrapper->wechat_media_id->set($xml_obj->MediaId);
+    $we_obj = wechat_init_obj_with_access_token();
+    $image = $we_obj->getMedia($xml_obj->MediaId);
+    if (!empty($image)) {
+      $dir_uri = file_stream_wrapper_get_instance_by_uri('public://');
+      $realpath = $dir_uri->realpath();
+	  $image_dir = 'public://wechat/request/images';
+	  $return = file_prepare_directory($image_dir);
+      if (empty($return)) {
+        drupal_mkdir('public://wechat/request/images', 0777, TRUE);
+      }
+      $filename = $realpath . "/wechat/request/images/". $message_wrapper->msg_id->value() . ".jpg";
+      file_put_contents($filename, $image);
+
+      $uri = 'public://wechat/request/images/'. $message_wrapper->msg_id->value() . ".jpg";
+      $file = new StdClass;
+      $file->uid = 1;
+      $file->filename = $message_wrapper->msg_id . ".jpg";
+      $file->uri = $uri;
+      $file->filemime = file_get_mimetype($uri);
+      // This is gagged because some uris will not support it.
+      $file->filesize = @filesize($uri);
+      $file->timestamp = REQUEST_TIME;
+      $file->status = FILE_STATUS_PERMANENT;
+      $file->is_new = TRUE;
+      $file = file_save($file);
+	  //watchdog('wechat', 'file:' . $file->fid);
+	  $message_wrapper->wechat_image->file = $file;
+    }	
   }
   elseif ($xml_obj->MsgType == 'voice') {
     $message_wrapper->wechat_media_id->set($xml_obj->MediaId);
     $message_wrapper->wechat_format->set($xml_obj->Format);
     $message_wrapper->wechat_recognition->set($xml_obj->Recognition);
+    $we_obj = wechat_init_obj_with_access_token();
+    $voice = $we_obj->getMedia($xml_obj->MediaId);
+    if (!empty($voice)) {
+      $dir_uri = file_stream_wrapper_get_instance_by_uri('public://');
+      $realpath = $dir_uri->realpath();
+	  $voice_dir = 'public://wechat/request/voices';
+	  $return = file_prepare_directory($voice_dir);
+      if (!empty($return)) {
+        drupal_mkdir('public://wechat/request/voices', 0777, TRUE);
+      } 
+      $filename = $realpath . "/wechat/request/voices/". $message_wrapper->msg_id->value() . "." . $xml_obj->Format;
+      file_put_contents($filename, $voice);
+
+      $uri = 'public://wechat/request/voices/'. $message_wrapper->msg_id->value() . "." . $xml_obj->Format;
+      $file = new StdClass;
+      $file->uid = 1;
+      $file->filename = basename($uri);
+      $file->uri = $uri;
+      $file->filemime = file_get_mimetype($uri);
+      // This is gagged because some uris will not support it.
+      $file->filesize = @filesize($uri);
+      $file->timestamp = REQUEST_TIME;
+      $file->status = FILE_STATUS_PERMANENT;
+      $file->is_new = TRUE;
+      $file = file_save($file);
+	  //watchdog('wechat', 'file:' . $file->fid);
+	  $message_wrapper->wechat_voice->file = $file;
+    }
   }
   elseif ($xml_obj->MsgType == 'video') {
     $message_wrapper->wechat_media_id->set($xml_obj->MediaId);
     $message_wrapper->wechat_thumb_media_id->set($xml_obj->ThumbMediaId);
+    $we_obj = wechat_init_obj_with_access_token();
+    //$video = $we_obj->getMedia($xml_obj->MediaId);
+	/*
+    if (!empty($video)) {
+      $filename = "/data/www/html/weixin/sites/default/files/wechat/request/videos/". $message_wrapper->msg_id->value() . ".mp4";
+      file_put_contents($filename, $video);
+
+      $uri = 'public://wechat/request/videos/'. $message_wrapper->msg_id->value() . ".mp4";
+      $file = new StdClass;
+      $file->uid = 1;
+      $file->filename = basename($uri);
+      $file->uri = $uri;
+      $file->filemime = file_get_mimetype($uri);
+      // This is gagged because some uris will not support it.
+      $file->filesize = @filesize($uri);
+      $file->timestamp = REQUEST_TIME;
+      $file->status = FILE_STATUS_PERMANENT;
+      $file->is_new = TRUE;
+      $file = file_save($file);
+	  //watchdog('wechat', 'file:' . $file->fid);
+	  $message_wrapper->wechat_video->file = $file;
+    }	
+	*/
   } 
   elseif ($xml_obj->MsgType == 'location') {
     $message_wrapper->wechat_location_x->set($xml_obj->Location_X);
@@ -394,38 +474,73 @@ function wechat_response_message_obj_to_array(WechatResponseMessage $message) {
     );
   }
   elseif ($message->msg_type == 'image') {
-    $result_json .= '"msgtype":"image",';
+    $result_array["msgtype"] = "image";
     $media_id = $message_wrapper->wechat_media_id->value();
-    $result_json .= '"image":{"media_id":"' . $media_id . '"}}';
+	$image_fid = $message_wrapper->wechat_image->file->fid->value();
+    if ( empty($media_id) && !empty($image_fid)) {
+      $media_id = wechat_upload_media($image_fid, 'image');
+	  /*
+	  $file = file_load($image_fid);
+      $uri = $file->uri;
+	  $realpath = drupal_realpath($uri);
+      $filename = '@' . $realpath;
+      //print debug($filename);
+      $we_obj = wechat_init_obj_with_access_token();
+	  $data = array(
+	    'media' => $filename,
+	  );
+	  $result  = $we_obj->uploadMedia($data, 'image');
+	  //print debug($result);
+      if (!empty($result['media_id']))	{
+        $media_id = $result['media_id'];
+      } */
+    }
+    //$result_json .= '"image":{"media_id":"' . $media_id . '"}}';
+    $result_array["image"] = array(
+      "media_id" => $media_id
+    );
   }
   elseif ($message->msg_type == 'voice') {
-    $result_json .= '"msgtype":"voice",';
+    $result_array["msgtype"] = "voice";
     $media_id = $message_wrapper->wechat_media_id->value();
-    $result_json .= '"voice":{"media_id":"' . $media_id . '"}}';
+	$voice_fid = $message_wrapper->wechat_voice->file->fid->value();
+    if ( empty($media_id) && !empty($voice_fid)) {
+      $media_id = wechat_upload_media($voice_fid, 'voice');
+    }
+    $result_array["voice"] = array(
+      "media_id" => $media_id
+    );	
   } 
   elseif ($message->msg_type == 'video') {
-    $result_json .= '"msgtype":"video",';
+	$result_array["msgtype"] = "video";
     $media_id = $message_wrapper->wechat_media_id->value();
-    $thumb_media_id = $message_wrapper->wechat_thumb_media_id->value();
-    $result_json .= '"video":{"media_id":"' . $media_id . '","thumb_media_id":"' . $thumb_media_id . '"}}';
+	$video_fid = $message_wrapper->wechat_video->file->fid->value();
+    if ( empty($media_id) && !empty($video_fid)) {
+      $media_id = wechat_upload_media($video_fid, 'video');
+    }
+    $result_array["video"] = array(
+      "media_id" => $media_id
+    );
   }
   elseif ($message->msg_type == 'music') {
-    $result_json .= '"msgtype":"music",';
+    //$result_json .= '"msgtype":"music",';
+	$result_array["msgtype"] = "music";
     $title = $message_wrapper->wechat_title->value();
     $description = $message_wrapper->wechat_description->value();
     $music_url = $message_wrapper->wechat_music_url->value();
     $hq_music_url = $message_wrapper->wechat_hq_music_url->value();
     $thumb_media_id = $message_wrapper->wechat_thumb_media_id->value();
-    $result_json .= '"music":{';
-    $result_json .= '"title":"' . $title . '",';
-    $result_json .= '"description":"' . $description . '",';
-    $result_json .= '"musicurl":"' . $music_url . '",';
-    $result_json .= '"hqmusicurl":"' . $hq_music_url . '",';
-    $result_json .= '"thumb_media_id":"' . $thumb_media_id . '"';
-    $result_json .= '}}';
+    $result_array["music"] = array(
+      "title" => $title,
+      "description" => $description,
+      "musicurl" => $music_url,
+      "hqmusicurl" => $hq_music_url,
+      "thumb_media_id" => $thumb_media_id,
+    );
   }
   elseif ($message->msg_type == 'news') {
-    $result_json .= '"msgtype":"news",';
+    //$result_json .= '"msgtype":"news",';
+    $result_array["msgtype"] = "news";
     //Todo
 
   }  
@@ -1288,6 +1403,17 @@ function _wechat_init_obj() {
 }
 
 /**
+ * init wechat object
+ */
+function wechat_init_obj_with_access_token() {
+  $we_obj = _wechat_init_obj();
+  //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
+  $access_token = wechat_get_access_token();
+  $we_obj->checkAuth('', '', $access_token);
+  return $we_obj;
+}
+
+/**
  * user login by uid
  */
 function _wechat_user_login($uid) {
@@ -1449,4 +1575,33 @@ function wechat_wechat_build_response_message($response_message, $request_messag
       }
     }
   }
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function wechat_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'wechat') . '/views',
+  );
+}
+
+function wechat_upload_media($fid, $type) {
+  $file = file_load($fid);
+  $media_id = NULL;
+  $uri = $file->uri;
+  $realpath = drupal_realpath($uri);
+  $filename = '@' . $realpath;
+  //print debug($filename);
+  $we_obj = wechat_init_obj_with_access_token();
+  $data = array(
+    'media' => $filename,
+  );
+  $result  = $we_obj->uploadMedia($data, $type);
+  //print debug($result);
+  if (!empty($result['media_id']))	{
+    $media_id = $result['media_id'];
+  }
+  return $media_id;
 }
