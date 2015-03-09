@@ -341,7 +341,7 @@ function wechat_get_user_list() {
     $output .= "<table>";
     $output .="<tr><td>序号</td><td>openid</td><td>更新用户信息操作</td></tr>";
     foreach ($result['data']['openid'] as $key => $openid) {
-      $output .= "<tr><td>" . $key . "</td><td>" . $openid . "</td><td>" . l(t('更新'), 'wechat/userupdate/' . $openid) . "</td></tr>";
+      $output .= "<tr><td>" . $key . "</td><td>" . $openid . "</td><td>" . l(t('更新'), 'admin/wechat/user/update/' . $openid) . "</td></tr>";
     }
     $output .= "</table>";
   } 
@@ -401,7 +401,7 @@ function wechat_get_groups() {
     $output .= "<table>";
     $output .="<tr><td>id</td><td>name</td><td>用户总数</td><td>操作</td></tr>";
     foreach ($result['groups'] as $key => $group) {
-      $output .= "<tr><td>" . $group['id'] . "</td><td>" . $group['name'] . "</td><td>" . $group['count'] . "</td><td>" . l('编辑', 'wechat/group/edit/' . $group['id'] . '/' . $group['name']) . "</td></tr>";
+      $output .= "<tr><td>" . $group['id'] . "</td><td>" . $group['name'] . "</td><td>" . $group['count'] . "</td><td>" . l('编辑', 'admin/wechat/group/edit/' . $group['id'] . '/' . $group['name']) . "</td></tr>";
     }
     $output .= "</table>";
   } 
@@ -435,7 +435,7 @@ function wechat_group_add_form_submit($form, &$form_state) {
     drupal_set_message('id:' . $result['group']['id']);
     drupal_set_message('name:' . $result['group']['name']);
   }
-  $form_state['redirect'] = 'wechat/groups';
+  $form_state['redirect'] = 'admin/wechat/groups';
 }
 
 function wechat_group_edit_form($form, &$form_state, $id, $name) {
@@ -476,7 +476,7 @@ function wechat_group_edit_form_submit($form, &$form_state) {
   else {
     drupal_set_message(t('update failed, reason:') . $we_obj->errMsg);
   }
-  $form_state['redirect'] = 'wechat/groups';
+  $form_state['redirect'] = 'admin/wechat/groups';
 }
 
 function wechat_group_member_update_form($form, &$form_state, $openid) {
@@ -521,6 +521,6 @@ function wechat_group_member_update_form_submit($form, &$form_state) {
   else {
     drupal_set_message(t('update failed, reason:') . $we_obj->errMsg);
   }
-  $form_state['redirect'] = 'wechat/userlist';
+  $form_state['redirect'] = 'admin/wechat/userlist';
 }
 

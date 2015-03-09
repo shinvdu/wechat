@@ -41,7 +41,13 @@ function wechat_schema() {
         'length' => 256,
         'not null' => TRUE,
       ),
-
+      'data' => array(
+        'description' => "The extra data info of wechat request message.",
+        'type' => 'blob',
+        'serialize' => TRUE,
+        'not null' => FALSE,
+        'size' => 'big',		
+      ),
       'create_time' => array(
         'description' => t('Create time of wechat request message.'),
         'type' => 'int',

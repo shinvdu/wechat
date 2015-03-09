@@ -20,7 +20,27 @@ function wechat_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
   );
-  $items['admin/config/services/wechat'] = array(
+  // Top level "Wechat" container.
+  $items['admin/wechat'] = array(
+    'title' => 'Wechat',
+    'description' => 'Administer your wechat.',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file path' => drupal_get_path('module', 'system'),
+    'file' => 'system.admin.inc',
+    'weight' => -7,
+  );
+  $items['admin/wechat/config'] = array(
+    'title' => 'Configuration',
+    'description' => 'Configure settings for your wechat.',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 50,
+    'file path' => drupal_get_path('module', 'system'),
+    'file' => 'system.admin.inc',
+  );  
+  $items['admin/wechat/config/default'] = array(
     'title' => 'Config Wechat',
     'description' => 'Wechat configuration.',
     'access arguments' => array('access administration pages'),
@@ -29,26 +49,21 @@ function wechat_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'wechat.admin.inc',
   );
-  $items['admin/config/services/wechat/config'] = array(
-    'title' => 'Config Wechat',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -1,
-  ); 
-  $items['admin/config/services/wechat/default-message'] = array(
-    'title' => 'Default message',
+  $items['admin/wechat/config/default-message'] = array(
+    'title' => 'Config default message',
     'access arguments' => array('access administration pages'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wechat_default_message_config_form'),
-    'type' => MENU_LOCAL_TASK,
+    'type' => MENU_NORMAL_ITEM,
     'file' => 'wechat.admin.inc',
     'weight' => 1,
   ); 
-  $items['admin/config/services/wechat/update-menu'] = array(
+  $items['admin/wechat/config/update-menu'] = array(
     'title' => 'Update menu',
     'access arguments' => array('access administration pages'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wechat_update_menu_form'),
-    'type' => MENU_LOCAL_TASK,
+    'type' => MENU_NORMAL_ITEM,
     'file' => 'wechat.admin.inc',
     'weight' => 1,
   );   
@@ -75,29 +90,29 @@ function wechat_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
   );
-  $items['wechat/userlist'] = array(
-    'title' => 'wechat user list',
+  $items['admin/wechat/user'] = array(
+    'title' => 'wechat users',
     'page callback' => 'wechat_get_user_list',
     'access arguments' => array('access administration pages'),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_NORMAL_ITEM,
     'file' => 'wechat.pages.inc',
   );
-  $items['wechat/userupdate/%'] = array(
+  $items['admin/wechat/user/update/%'] = array(
     'title' => 'update wechat user info',
     'page callback' => 'wechat_update_user_info',
-    'page arguments' => array(2),
+    'page arguments' => array(4),
     'access arguments' => array('access administration pages'),
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
   );
-  $items['wechat/groups'] = array(
+  $items['admin/wechat/groups'] = array(
     'title' => 'wechat groups',
     'page callback' => 'wechat_get_groups',
     'access arguments' => array('access administration pages'),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_NORMAL_ITEM,
     'file' => 'wechat.pages.inc',
   );
-  $items['wechat/group/add'] = array(
+  $items['admin/wechat/group/add'] = array(
     'title' => 'Create wechat group',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wechat_group_add_form'),
@@ -105,18 +120,18 @@ function wechat_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
   );
-  $items['wechat/group/edit/%/%'] = array(
+  $items['admin/wechat/group/edit/%/%'] = array(
     'title' => 'Create wechat group',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('wechat_group_edit_form', 3, 4),
+    'page arguments' => array('wechat_group_edit_form', 4, 5),
     'access arguments' => array('access administration pages'),
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
   );
-  $items['wechat/group/member/update/%'] = array(
+  $items['admin/wechat/group/member/update/%'] = array(
     'title' => 'Update user group',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('wechat_group_member_update_form', 4),
+    'page arguments' => array('wechat_group_member_update_form', 5),
     'access arguments' => array('access administration pages'),
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
@@ -162,6 +177,7 @@ function wechat_build_request_message($request_data) {
   $message_wrapper->to_user_name->set($xml_obj->ToUserName);
   $message_wrapper->from_user_name->set($xml_obj->FromUserName);
   $message_wrapper->create_time->set(time());
+  //$message->data = array('test' => '123456');
   if ($xml_obj->MsgType == 'event') {
     $message_wrapper->msg_id->set('');
   }
@@ -595,9 +611,9 @@ function wechat_entity_info() {
     $return['wechat_request_message']['bundles'][$type] = array(
       'label' => $info->label,
       'admin' => array(
-        'path' => 'admin/structure/wechat-request-messages/manage/%wechat_request_message_type',
-        'real path' => 'admin/structure/wechat-request-messages/manage/' . $type,
-        'bundle argument' => 4,
+        'path' => 'admin/wechat/config/request-messages/manage/%wechat_request_message_type',
+        'real path' => 'admin/wechat/config/request-messages/manage/' . $type,
+        'bundle argument' => 5,
         'access arguments' => array('administer wechat request message'),
       ),
     );
@@ -622,7 +638,7 @@ function wechat_entity_info() {
     'module' => 'wechat',
     // Enable the entity API's admin UI.
     'admin ui' => array(
-      'path' => 'admin/structure/wechat-request-messages',
+      'path' => 'admin/wechat/config/request-messages',
       'file' => 'wechat.admin.inc',
       'controller class' => 'WechatRequestMessageTypeUIController',
     ),
@@ -670,9 +686,9 @@ function wechat_entity_info() {
     $return['wechat_response_message']['bundles'][$type] = array(
       'label' => $info->label,
       'admin' => array(
-        'path' => 'admin/structure/wechat-response-messages/manage/%wechat_response_message_type',
-        'real path' => 'admin/structure/wechat-response-messages/manage/' . $type,
-        'bundle argument' => 4,
+        'path' => 'admin/wechat/config/response-messages/manage/%wechat_response_message_type',
+        'real path' => 'admin/wechat/config/response-messages/manage/' . $type,
+        'bundle argument' => 5,
         'access arguments' => array('administer wechat response message'),
       ),
     );
@@ -697,7 +713,7 @@ function wechat_entity_info() {
     'module' => 'wechat',
     // Enable the entity API's admin UI.
     'admin ui' => array(
-      'path' => 'admin/structure/wechat-response-messages',
+      'path' => 'admin/wechat/config/response-messages',
       'file' => 'wechat.admin.inc',
       'controller class' => 'WechatResponseMessageTypeUIController',
     ),

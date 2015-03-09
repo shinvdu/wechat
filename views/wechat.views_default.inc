@@ -178,15 +178,31 @@ $handler->display->display_options['fields']['rendered_entity']['bypass_access']
 $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
 $handler->display->display_options['fields']['nothing']['table'] = 'views';
 $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
-$handler->display->display_options['fields']['nothing']['label'] = '回复';
-$handler->display->display_options['fields']['nothing']['alter']['text'] = '回复';
+$handler->display->display_options['fields']['nothing']['label'] = '文本回复';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '文本';
 $handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
 $handler->display->display_options['fields']['nothing']['alter']['path'] = 'response-message/add/text?rm_id=[id]';
 $handler->display->display_options['fields']['nothing']['alter']['target'] = '_blank';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing_1']['id'] = 'nothing_1';
+$handler->display->display_options['fields']['nothing_1']['table'] = 'views';
+$handler->display->display_options['fields']['nothing_1']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing_1']['label'] = '图片回复';
+$handler->display->display_options['fields']['nothing_1']['alter']['text'] = '图片';
+$handler->display->display_options['fields']['nothing_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing_1']['alter']['path'] = 'response-message/add/image?rm_id=[id]';
+$handler->display->display_options['fields']['nothing_1']['element_label_colon'] = FALSE;
 
 /* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page');
 $handler->display->display_options['path'] = 'admin/wechat/messages/request';
+$handler->display->display_options['menu']['type'] = 'normal';
+$handler->display->display_options['menu']['title'] = 'Request messages';
+$handler->display->display_options['menu']['weight'] = '0';
+$handler->display->display_options['menu']['name'] = 'management';
+$handler->display->display_options['menu']['context'] = 0;
+$handler->display->display_options['menu']['context_only_inline'] = 0;
 
   $views[$view->name] = $view;  
   return $views;
