@@ -206,14 +206,14 @@ function wechat_request_message_type_form_submit(&$form, &$form_state) {
   $wechat_request_message_type = entity_ui_form_submit_build_entity($form, $form_state);
   // Save and go back.
   $wechat_request_message_type->save();
-  $form_state['redirect'] = 'admin/structure/wechat-request-messages';
+  $form_state['redirect'] = 'admin/wechat/config/request-messages';
 }
 
 /**
  * Form API submit callback for the delete button.
  */
 function wechat_request_message_type_form_submit_delete(&$form, &$form_state) {
-  $form_state['redirect'] = 'admin/structure/wechat-request-messages/manage/' . $form_state['message_type']->type . '/delete';
+  $form_state['redirect'] = 'admin/wechat/config/request-messages/manage/' . $form_state['message_type']->type . '/delete';
 }
 
 /**
@@ -283,14 +283,14 @@ function wechat_response_message_type_form_submit(&$form, &$form_state) {
   // Save and go back.
   //print debug($wechat_response_message_type);
   $wechat_response_message_type->save();
-  $form_state['redirect'] = 'admin/structure/wechat-response-messages';
+  $form_state['redirect'] = 'admin/wechat/config/response-messages';
 }
 
 /**
  * Form API submit callback for the delete button.
  */
 function wechat_response_message_type_form_submit_delete(&$form, &$form_state) {
-  $form_state['redirect'] = 'admin/structure/wechat-response-messages/manage/' . $form_state['message_type']->type . '/delete';
+  $form_state['redirect'] = 'admin/wechat/config/response-messages/manage/' . $form_state['message_type']->type . '/delete';
 }
 
 /**
@@ -336,6 +336,9 @@ function wechat_response_message_edit_form($form, &$form_state, $message) {
   $form_state['message'] = $message;
   field_attach_form('wechat_response_message', $message, $form, $form_state);
 
+  $form['#attached']['css'] = array(
+    drupal_get_path('module', 'wechat') . '/wechat.css',
+  );
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',

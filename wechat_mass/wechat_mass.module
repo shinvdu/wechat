@@ -203,5 +203,8 @@ function wechat_mass_form_alter(&$form, &$form_state, $form_id) {
     $form['#attached']['css'] = array(
       drupal_get_path('module', 'wechat_mass') . '/wechat_mass.css',
     );
+    $form['#attached']['js'] = array(
+      drupal_get_path('module', 'wechat_mass') . '/wechat_mass.js',
+    );
   }
 }
