@@ -1346,9 +1346,25 @@ function _wechat_menu_form_alter(array &$form, array $item = array(), array &$co
   if ($item['menu_name'] !== 'wechat') {
     return;
   }
+  
+  $form['link_path']['#default_value'] = 'node';
   $form['options']['#tree'] = TRUE;
   $form['options']['#weight'] = 50;
-
+  $parent_options = $form['parent']['#options'];
+  $parent_options_new = array();
+  foreach($parent_options as $key=>$value){
+    if (substr($key,0,6) == 'wechat') {
+      $parent_options_new[$key]	= $value;
+    }
+  }
+  $form['parent']['#options'] = $parent_options_new;
+  $form['link_path']['#access'] = FALSE;
+  $form['description']['#access'] = FALSE;
+  $form['enabled']['#access'] = FALSE;
+  $form['expanded']['#access'] = FALSE;
+  $form['weight']['#access'] = FALSE;
+  
+  //print debug($form['parent']);
   // Unset the previous value so that the new values get saved.
   unset($form['options']['#value']['attributes']);
 
