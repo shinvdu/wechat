@@ -10,142 +10,6 @@
 function wechat_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'field_collection_item-wechat_article-wechat_description'
-  $field_instances['field_collection_item-wechat_article-wechat_description'] = array(
-    'bundle' => 'wechat_article',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 1,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'wechat_description',
-    'label' => 'description',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 5,
-      ),
-      'type' => 'text_textarea',
-      'weight' => 4,
-    ),
-  );
-
-  // Exported field_instance: 'field_collection_item-wechat_article-wechat_pic_url'
-  $field_instances['field_collection_item-wechat_article-wechat_pic_url'] = array(
-    'bundle' => 'wechat_article',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 2,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'wechat_pic_url',
-    'label' => 'Pic Url',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 60,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 6,
-    ),
-  );
-
-  // Exported field_instance: 'field_collection_item-wechat_article-wechat_title'
-  $field_instances['field_collection_item-wechat_article-wechat_title'] = array(
-    'bundle' => 'wechat_article',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'wechat_title',
-    'label' => 'title',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 60,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 2,
-    ),
-  );
-
-  // Exported field_instance: 'field_collection_item-wechat_article-wechat_url'
-  $field_instances['field_collection_item-wechat_article-wechat_url'] = array(
-    'bundle' => 'wechat_article',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 3,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'wechat_url',
-    'label' => 'url',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 60,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 8,
-    ),
-  );
-
   // Exported field_instance: 'wechat_request_message-event-wechat_event'
   $field_instances['wechat_request_message-event-wechat_event'] = array(
     'bundle' => 'event',
@@ -344,6 +208,50 @@ function wechat_field_default_field_instances() {
       ),
       'type' => 'text_textfield',
       'weight' => 3,
+    ),
+  );
+
+  // Exported field_instance: 'wechat_request_message-image-wechat_image'
+  $field_instances['wechat_request_message-image-wechat_image'] = array(
+    'bundle' => 'image',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 3,
+      ),
+    ),
+    'entity_type' => 'wechat_request_message',
+    'field_name' => 'wechat_image',
+    'label' => 'Wechat Image',
+    'required' => 0,
+    'settings' => array(
+      'alt_field' => 0,
+      'default_image' => 0,
+      'file_directory' => 'wechat/request/images',
+      'file_extensions' => 'png gif jpg jpeg',
+      'max_filesize' => '',
+      'max_resolution' => '',
+      'min_resolution' => '',
+      'title_field' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'image',
+      'settings' => array(
+        'preview_image_style' => 'thumbnail',
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'image_image',
+      'weight' => 5,
     ),
   );
 
@@ -755,6 +663,42 @@ function wechat_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'wechat_request_message-video-wechat_video'
+  $field_instances['wechat_request_message-video-wechat_video'] = array(
+    'bundle' => 'video',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_default',
+        'weight' => 2,
+      ),
+    ),
+    'entity_type' => 'wechat_request_message',
+    'field_name' => 'wechat_video',
+    'label' => 'wechat video',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 0,
+      'file_directory' => 'wechat/request/videos',
+      'file_extensions' => 'mp4',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 4,
+    ),
+  );
+
   // Exported field_instance: 'wechat_request_message-voice-wechat_format'
   $field_instances['wechat_request_message-voice-wechat_format'] = array(
     'bundle' => 'voice',
@@ -854,6 +798,86 @@ function wechat_field_default_field_instances() {
       ),
       'type' => 'text_textarea',
       'weight' => 3,
+    ),
+  );
+
+  // Exported field_instance: 'wechat_request_message-voice-wechat_voice'
+  $field_instances['wechat_request_message-voice-wechat_voice'] = array(
+    'bundle' => 'voice',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_default',
+        'weight' => 3,
+      ),
+    ),
+    'entity_type' => 'wechat_request_message',
+    'field_name' => 'wechat_voice',
+    'label' => 'wechat voice',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 0,
+      'file_directory' => 'wechat/request/voices',
+      'file_extensions' => 'amr mp3',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'wechat_response_message-image-wechat_image'
+  $field_instances['wechat_response_message-image-wechat_image'] = array(
+    'bundle' => 'image',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'image',
+        'weight' => 1,
+      ),
+    ),
+    'entity_type' => 'wechat_response_message',
+    'field_name' => 'wechat_image',
+    'label' => 'Wechat Image',
+    'required' => 0,
+    'settings' => array(
+      'alt_field' => 0,
+      'default_image' => 0,
+      'file_directory' => 'wechat/response/images',
+      'file_extensions' => 'png gif jpg jpeg',
+      'max_filesize' => '',
+      'max_resolution' => '',
+      'min_resolution' => '',
+      'title_field' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'image',
+      'settings' => array(
+        'preview_image_style' => 'thumbnail',
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'image_image',
+      'weight' => 4,
     ),
   );
 
@@ -1061,7 +1085,7 @@ function wechat_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'wechat_response_message-news-wechat_article'
+  // Exported field_instance: 'wechat_response_message-news-field_articles'
   $field_instances['wechat_response_message-news-wechat_article'] = array(
     'bundle' => 'news',
     'default_value' => NULL,
@@ -1070,31 +1094,31 @@ function wechat_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'field_collection',
+        'module' => 'entityreference',
         'settings' => array(
-          'add' => 'Add',
-          'delete' => 'Delete',
-          'description' => TRUE,
-          'edit' => 'Edit',
-          'view_mode' => 'full',
+          'link' => FALSE,
         ),
-        'type' => 'field_collection_view',
-        'weight' => 0,
+        'type' => 'entityreference_label',
+        'weight' => 1,
       ),
     ),
     'entity_type' => 'wechat_response_message',
     'field_name' => 'wechat_article',
-    'label' => 'article',
+    'label' => 'Article',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
     'widget' => array(
-      'active' => 0,
-      'module' => 'field_collection',
-      'settings' => array(),
-      'type' => 'field_collection_embed',
-      'weight' => 1,
+      'active' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete',
+      'weight' => 2,
     ),
   );
 
@@ -1200,200 +1224,6 @@ function wechat_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'wechat_response_message-voice-wechat_media_id'
-  $field_instances['wechat_response_message-voice-wechat_media_id'] = array(
-    'bundle' => 'voice',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'wechat_response_message',
-    'field_name' => 'wechat_media_id',
-    'label' => 'Media Id',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 60,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 2,
-    ),
-  );
-
-  // Exported field_instance: 'wechat_request_message-image-wechat_image'
-  $field_instances['wechat_request_message-image-wechat_image'] = array(
-    'bundle' => 'image',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'image',
-        'settings' => array(
-          'image_link' => '',
-          'image_style' => '',
-        ),
-        'type' => 'image',
-        'weight' => 3,
-      ),
-    ),
-    'entity_type' => 'wechat_request_message',
-    'field_name' => 'wechat_image',
-    'label' => 'Wechat Image',
-    'required' => 0,
-    'settings' => array(
-      'alt_field' => 0,
-      'default_image' => 0,
-      'file_directory' => 'wechat/request/images',
-      'file_extensions' => 'png gif jpg jpeg',
-      'max_filesize' => '',
-      'max_resolution' => '',
-      'min_resolution' => '',
-      'title_field' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'image',
-      'settings' => array(
-        'preview_image_style' => 'thumbnail',
-        'progress_indicator' => 'throbber',
-      ),
-      'type' => 'image_image',
-      'weight' => 5,
-    ),
-  );
-
-  // Exported field_instance: 'wechat_request_message-video-wechat_video'
-  $field_instances['wechat_request_message-video-wechat_video'] = array(
-    'bundle' => 'video',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'file',
-        'settings' => array(),
-        'type' => 'file_default',
-        'weight' => 2,
-      ),
-    ),
-    'entity_type' => 'wechat_request_message',
-    'field_name' => 'wechat_video',
-    'label' => 'wechat video',
-    'required' => 0,
-    'settings' => array(
-      'description_field' => 0,
-      'file_directory' => 'wechat/request/videos',
-      'file_extensions' => 'mp4',
-      'max_filesize' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'file',
-      'settings' => array(
-        'progress_indicator' => 'throbber',
-      ),
-      'type' => 'file_generic',
-      'weight' => 4,
-    ),
-  );
-
-  // Exported field_instance: 'wechat_request_message-voice-wechat_voice'
-  $field_instances['wechat_request_message-voice-wechat_voice'] = array(
-    'bundle' => 'voice',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'file',
-        'settings' => array(),
-        'type' => 'file_default',
-        'weight' => 3,
-      ),
-    ),
-    'entity_type' => 'wechat_request_message',
-    'field_name' => 'wechat_voice',
-    'label' => 'wechat voice',
-    'required' => 0,
-    'settings' => array(
-      'description_field' => 0,
-      'file_directory' => 'wechat/request/voices',
-      'file_extensions' => 'amr mp3',
-      'max_filesize' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'file',
-      'settings' => array(
-        'progress_indicator' => 'throbber',
-      ),
-      'type' => 'file_generic',
-      'weight' => 4,
-    ),
-  );
-
-  // Exported field_instance: 'wechat_response_message-image-wechat_image'
-  $field_instances['wechat_response_message-image-wechat_image'] = array(
-    'bundle' => 'image',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'image',
-        'settings' => array(
-          'image_link' => '',
-          'image_style' => '',
-        ),
-        'type' => 'image',
-        'weight' => 1,
-      ),
-    ),
-    'entity_type' => 'wechat_response_message',
-    'field_name' => 'wechat_image',
-    'label' => 'Wechat Image',
-    'required' => 0,
-    'settings' => array(
-      'alt_field' => 0,
-      'default_image' => 0,
-      'file_directory' => 'wechat/response/images',
-      'file_extensions' => 'png gif jpg jpeg',
-      'max_filesize' => '',
-      'max_resolution' => '',
-      'min_resolution' => '',
-      'title_field' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'image',
-      'settings' => array(
-        'preview_image_style' => 'thumbnail',
-        'progress_indicator' => 'throbber',
-      ),
-      'type' => 'image_image',
-      'weight' => 4,
-    ),
-  );
-
   // Exported field_instance: 'wechat_response_message-video-wechat_video'
   $field_instances['wechat_response_message-video-wechat_video'] = array(
     'bundle' => 'video',
@@ -1427,6 +1257,40 @@ function wechat_field_default_field_instances() {
       ),
       'type' => 'file_generic',
       'weight' => 6,
+    ),
+  );
+
+  // Exported field_instance: 'wechat_response_message-voice-wechat_media_id'
+  $field_instances['wechat_response_message-voice-wechat_media_id'] = array(
+    'bundle' => 'voice',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'wechat_response_message',
+    'field_name' => 'wechat_media_id',
+    'label' => 'Media Id',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 2,
     ),
   );
 
@@ -1465,10 +1329,10 @@ function wechat_field_default_field_instances() {
       'weight' => 4,
     ),
   );
-  
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Articles');
   t('Content of wechat message');
   t('Event');
   t('Event Key');
@@ -1487,10 +1351,12 @@ function wechat_field_default_field_instances() {
   t('Scale');
   t('Thumb Media Id');
   t('Ticket');
-  t('article');
+  t('Wechat Image');
   t('description');
   t('title');
   t('url');
+  t('wechat video');
+  t('wechat voice');
 
   return $field_instances;
 }

@@ -9,11 +9,12 @@
  * auto reply message
  */
 function wechat_callback() {
+  watchdog('wechat', '123456'); 
   $we_obj = _wechat_init_obj();
   $we_obj->valid();
   $type = $we_obj->getRev()->getRevType();
   $request_data = $we_obj->getRevData();
- 
+  watchdog('wechat', '123'); 
   //drupal_set_message('123');
   $request_message = wechat_build_request_message($request_data);
   $response_message = wechat_build_response_message($request_message);

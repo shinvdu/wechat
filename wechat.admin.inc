@@ -390,7 +390,7 @@ function wechat_response_message_edit_form_submit(&$form, &$form_state) {
   // Save the breadcrumb
   wechat_response_message_save($message);
   
-  $array_data = wechat_response_message_obj_to_array($message);
+ // $array_data = wechat_response_message_obj_to_array($message);
   $message->sendCustomMessage();
   /*
   $appid = variable_get('wechat_appid', "");

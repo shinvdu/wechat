@@ -402,12 +402,8 @@ function wechat_response_message_obj_to_xml(WechatResponseMessage $message) {
     $result_str = sprintf($return_template, $to_user_name, $from_user_name, $request_time, $title, $description, $music_url, $hq_music_url, $thumb_media_id);
   } 
   elseif ($message->msg_type == 'news') {
-    $media_id = $message_wrapper->wechat_media_id->value();
-    $title = $message_wrapper->wechat_title->value();
-    $description = $message_wrapper->wechat_description->value();
-    $music_url = $message_wrapper->wechat_music_url->value();
-    $hq_music_url = $message_wrapper->wechat_hq_music_url->value();
-    $article_count = 0;
+    $articles = $message_wrapper->wechat_article->value();
+    $article_count = count($article_nids);
     $result_str = "<xml>";
     $result_str .= "<ToUserName><![CDATA[" . $to_user_name . "]]></ToUserName>";
     $result_str .= "<FromUserName><![CDATA[" . $from_user_name . "]]></FromUserName>";
@@ -415,7 +411,17 @@ function wechat_response_message_obj_to_xml(WechatResponseMessage $message) {
     $result_str .= "<MsgType><![CDATA[news]]></MsgType>";
     $result_str .= "<ArticleCount>" . $article_count . "</ArticleCount>";
     $result_str .= "<Articles>";
+    $position = 0;
+    foreach ($articles as $article) {
+      $article_item = wechat_build_news_article($article, $position++);
+	  $result_str .= "<item>";
+      $result_str .= "<Title><![CDATA[" . $article_item['title'] . "]]></Title>"; 
+      $result_str .= "<Description><![CDATA[" . $article_item['description'] . "]]></Description>";
+      $result_str .= "<PicUrl><![CDATA[" . $article_item['picurl'] . "]]></PicUrl>";
+      $result_str .= "<Url><![CDATA[" . $article_item['url'] . "]]></Url>";
+      $result_str .= "</item>";
 
+	}
     //此处循环
     $result_str .= "</Articles>";
     $result_str .= "</xml>";
@@ -557,6 +563,17 @@ function wechat_response_message_obj_to_array(WechatResponseMessage $message) {
   elseif ($message->msg_type == 'news') {
     //$result_json .= '"msgtype":"news",';
     $result_array["msgtype"] = "news";
+    $result_array["news"]['articles'] = array();
+    $articles = $message_wrapper->wechat_article->value();
+    if (!empty($articles)) {
+      $position = 0;
+	  foreach ($articles as $article) {
+	    //drupal_set_message('123:' . $article_nid);
+        $article_item = wechat_build_news_article($article, $position++);
+        $result_array["news"]['articles'][] = $article_item;
+	  }
+    }
+	//print debug($article_nids);
     //Todo
 
   }  
@@ -1620,4 +1637,28 @@ function wechat_upload_media($fid, $type) {
     $media_id = $result['media_id'];
   }
   return $media_id;
+}
+
+function wechat_build_news_article($node, $position=0){
+  $article_item = array(
+    'title' => "",
+    'description' => "",
+    'url' => "",
+    'picurl' => "",
+  );
+  //$node = node_load($nid);
+  $node_wrapper = entity_metadata_wrapper('node', $node); 
+  $article_item['title'] = $node->title;
+  $article_item['url'] = url('node/' . $node->nid, array('absolute' => TRUE));
+  if (isset($node_wrapper->body->value)) {
+    $content = $node_wrapper->body->value->value(array('decode' => TRUE));
+    $article_item['description'] = $content;
+  }
+  if (isset($node_wrapper->field_image->file)) {
+    $article_item['picurl'] = $node_wrapper->field_image->file->url->value();
+  }
+  
+  drupal_alter('wechat_news_article', $article_item, $node, $position);
+  return $article_item;
+  
 }
