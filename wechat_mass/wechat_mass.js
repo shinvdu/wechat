@@ -14,7 +14,7 @@
 jQuery.noConflict();  //将变量$的控制权让渡给prototype.js
 (function($) { 
 $(function() {
-alert('123123');
+//alert('123123');
   $('#wechat-mass-message-node-form .field-name-field-message-type select').change(function () {
      var optionSelected = $(this).find("option:selected");
      var valueSelected  = optionSelected.val();
