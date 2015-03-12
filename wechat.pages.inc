@@ -9,14 +9,14 @@
  * auto reply message
  */
 function wechat_callback() {
-  watchdog('wechat', '123456'); 
+  //watchdog('wechat', '123456'); 
   $we_obj = _wechat_init_obj();
   $we_obj->valid();
   $type = $we_obj->getRev()->getRevType();
   $request_data = $we_obj->getRevData();
-  watchdog('wechat', '123'); 
-  //drupal_set_message('123');
+  //watchdog('wechat', '123');
   $request_message = wechat_build_request_message($request_data);
+  //watchdog('wechat', '123456'); 
   $response_message = wechat_build_response_message($request_message);
   $response_message->send();
   /* remove the old code.
@@ -68,6 +68,7 @@ function wechat_build_response_message($request_message) {
   if ($response_message->msg_type == 'text' && empty($wechat_content)) {
     if ($request_message->msg_type == 'event') {
       if ($request_message_wrapper->wechat_event->value() == 'subscribe') {
+        //watchdog('wechat', '123456'); 
         $default_message_content = variable_get("wechat_follow_message", variable_get("wechat_default_message", 'Hi, WeChat!'));
         $response_message_wrapper->wechat_content->set($default_message_content); 
       }
