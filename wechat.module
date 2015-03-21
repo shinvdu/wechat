@@ -1687,8 +1687,21 @@ function wechat_build_news_article($node, $position=0){
   if (!empty($field_image)) {
     $article_item['picurl'] = $node_wrapper->field_image->file->url->value();
   }
-  
   drupal_alter('wechat_news_article', $article_item, $node, $position);
   return $article_item;
-  
+}
+
+/**
+ * Implement hook_module_implement_alter().
+ */
+function wechat_module_implements_alter(&$implements, $hook) {
+  //the wechat menu confict with menu_attributes, so here we just unset the
+  //implement of menu_attributes on menu_links belong to wechat menu.
+  if (isset($implements['menu_attributes']) && drupal_match_path(current_path(), 'admin/structure/menu/item/*/edit')) {
+    if ($menu_link = menu_link_load(arg(4))) {
+      if ($menu_link['menu_name'] == 'wechat') {
+        unset($implements['menu_attributes']);
+      }
+    }
+  }
 }
