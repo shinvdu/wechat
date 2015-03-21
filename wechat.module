@@ -59,7 +59,7 @@ function wechat_menu() {
     'weight' => 1,
   ); 
   $items['admin/wechat/config/update-menu'] = array(
-    'title' => 'Update menu',
+    'title' => 'Update wechat menu',
     'access arguments' => array('access administration pages'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wechat_update_menu_form'),

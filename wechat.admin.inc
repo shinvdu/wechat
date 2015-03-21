@@ -48,13 +48,15 @@ function wechat_default_message_config_form($form, $form_state) {
 }
 
 function wechat_update_menu_form($form, $form_state) {
+  $wechat_menu = l('Wechat Menu', 'admin/structure/menu/manage/wechat', array('attributes' => array('target' => '_blank')));
+  $form['#prefix'] = t('管理菜单，请点击!url;<br />完成编辑后，点击这里更新菜单。（微信菜单不能做到实时更新，会有一定延时。)', array('!url' => $wechat_menu));
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Update Menu'),
     '#submit' => array('wechat_admin_update_menu_submit'),
   );
   return $form;
-} 
+}
 
 /**
  * update wechat menu
