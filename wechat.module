@@ -1697,8 +1697,8 @@ function wechat_build_news_article($node, $position=0){
 function wechat_module_implements_alter(&$implements, $hook) {
   //the wechat menu confict with menu_attributes, so here we just unset the
   //implement of menu_attributes on menu_links belong to wechat menu.
-  if (isset($implements['menu_attributes']) && drupal_match_path(current_path(), 'admin/structure/menu/item/*/edit')) {
-    if ($menu_link = menu_link_load(arg(4))) {
+  if ($hook = 'form_alter' && isset($implements['menu_attributes'])) {
+    if (drupal_match_path(current_path(), 'admin/structure/menu/item/*/edit') && $menu_link = menu_link_load(arg(4))) {
       if ($menu_link['menu_name'] == 'wechat') {
         unset($implements['menu_attributes']);
       }
