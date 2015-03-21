@@ -1300,7 +1300,7 @@ class WechatResponseMessage extends Entity {
   }
 
   protected function defaultLabel() {
-    return $this->msg_id;
+    return $this->id;
   }
 
   protected function defaultUri() {
