@@ -357,6 +357,8 @@ function wechat_update_user_info($openid) {
   $access_token = wechat_get_access_token();
   $we_obj->checkAuth('', '', $access_token);
   $user_info = $we_obj->getUserInfo($openid);
+  //strip special chars, especially 4-Bytes UTF8 chars.
+  $user_info['nickname'] = _wechat_strip_utf8mb4(addslashes($user_info['nickname']), '-');
   $output = "";
   if ($user_info) {
     db_merge('wechat_user')
@@ -527,3 +529,31 @@ function wechat_group_member_update_form_submit($form, &$form_state) {
   $form_state['redirect'] = 'admin/wechat/userlist';
 }
 
+/**
+ * 微信返回用户名的nickname会包含特殊字符，在特定的mysql版本下会报错，所以需要预处理nickname，做好兼容处理。
+ * Helper function to Strip 4-byte UTF8 characters.
+ * copy from http://cgit.drupalcode.org/strip_utf8mb4/tree/strip_utf8mb4.module
+ *
+ */
+function _wechat_strip_utf8mb4($text_data, $replace_text ='') {
+  $replacements_done = array();
+  // Strip overly long 2 byte sequences, as well as characters
+  //  above U+10000 and replace with $replace_text
+  $processed_text_data = preg_replace('/[\x00-\x08\x10\x0B\x0C\x0E-\x19\x7F]' .
+    '|[\x00-\x7F][\x80-\xBF]+' .
+    '|([\xC0\xC1]|[\xF0-\xFF])[\x80-\xBF]*' .
+    '|[\xC2-\xDF]((?![\x80-\xBF])|[\x80-\xBF]{2,})' .
+    '|[\xE0-\xEF](([\x80-\xBF](?![\x80-\xBF]))|(?![\x80-\xBF]{2})|[\x80-\xBF]{3,})/S',
+    $replace_text, $text_data, -1, $replacements_done[]);
+
+  // Strip overly long 3 byte sequences and UTF-16 surrogates and replace with $replace_text
+  $processed_text_data = preg_replace('/\xE0[\x80-\x9F][\x80-\xBF]' .
+                                          '|\xED[\xA0-\xBF][\x80-\xBF]/S', $replace_text, $processed_text_data, -1, $replacements_done[]);
+  
+  if (array_sum($replacements_done) > 0) {
+    $message = t('Unsupported characters in your text were replaced with "!replacement"', array('!replacement' => $replace_text));
+    drupal_set_message($message, 'warning', FALSE);
+  }
+
+  return $processed_text_data;
+}
