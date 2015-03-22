@@ -760,6 +760,7 @@ function wechat_entity_info() {
     ),
     'access callback' => 'wechat_wechatuser_access',
     'module' => 'wechat',
+	'metadata controller class' => 'WechatUserMetadataController',
     'bundles' => array(
 	  'wechat_user' => array(
 	    'label' => t('Wechat user'),
@@ -1927,4 +1928,11 @@ function wechat_wechat_request_message_insert($request_message) {
     $uid = 0;
     $result = wechat_connect_user($uid, $openid);    
   }
+}
+
+/**
+ * Implementation of hook_wechat_request_message_insert().
+ */
+function wechat_wechatuser_sex_options_list() {
+  return array('1'=>t('男'), '2'=>t('女'), '0'=>t('未知') );
 }

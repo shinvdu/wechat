@@ -196,10 +196,10 @@ class WechatUserMetadataController extends EntityDefaultMetadataController {
     $properties['sex'] = array(
       'label' => t('sex'),
       'description' => t('sex of wechat user.'),
-      'type' => 'integer',
-      'getter callback' => 'entity_property_verbatim_get',
+      'type' => 'token',
       'setter callback' => 'entity_property_verbatim_set',
       'setter permission' => 'administer wechat user',
+      'options list' => 'wechat_wechatuser_sex_options_list',
       'schema field' => 'sex',
     );
 
@@ -246,9 +246,9 @@ class WechatUserMetadataController extends EntityDefaultMetadataController {
     $properties['subscribe_time'] = array(
       'type' => 'date',
       'label' => t('Subscribe time'),
-      'description' => t('Subscribe time of wechat response message.'),
+      'description' => t('Subscribe time of wechat user.'),
       'setter callback' => 'entity_property_verbatim_set',
-      'setter permission' => 'administer wechat response message',
+      'setter permission' => 'administer wechat user',
       'schema field' => 'subscribe_time',
       'required' => TRUE,
     );
