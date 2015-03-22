@@ -5,7 +5,6 @@ package = Wechat
 dependencies[] = entity
 dependencies[] = entityreference
 dependencies[] = features
-dependencies[] = field_collection
 dependencies[] = file
 dependencies[] = image
 dependencies[] = list
