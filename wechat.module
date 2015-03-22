@@ -758,7 +758,7 @@ function wechat_entity_info() {
     'entity keys' => array(
       'id' => 'openid',
     ),
-    'access callback' => 'wechat_user_access',
+    'access callback' => 'wechat_wechatuser_access',
     'module' => 'wechat',
     'bundles' => array(
 	  'wechat_user' => array(
