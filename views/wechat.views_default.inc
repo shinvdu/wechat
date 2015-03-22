@@ -26,8 +26,13 @@ $handler->display->display_options['access']['type'] = 'none';
 $handler->display->display_options['cache']['type'] = 'none';
 $handler->display->display_options['query']['type'] = 'views_query';
 $handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
 $handler->display->display_options['pager']['type'] = 'full';
 $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+$handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+$handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+$handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+$handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
 $handler->display->display_options['style_plugin'] = 'table';
 $handler->display->display_options['style_options']['columns'] = array(
   'id' => 'id',
@@ -146,53 +151,96 @@ $handler->display->display_options['style_options']['info'] = array(
     'empty_column' => 0,
   ),
 );
-/* Field: Wechat request message: Wechat request message ID */
-$handler->display->display_options['fields']['id']['id'] = 'id';
-$handler->display->display_options['fields']['id']['table'] = 'wechat_request_message';
-$handler->display->display_options['fields']['id']['field'] = 'id';
-/* Field: Wechat request message: Create time */
+/* Relationship: Wechat request message: wechat user */
+$handler->display->display_options['relationships']['from_user_name']['id'] = 'from_user_name';
+$handler->display->display_options['relationships']['from_user_name']['table'] = 'wechat_request_message';
+$handler->display->display_options['relationships']['from_user_name']['field'] = 'from_user_name';
+/* 字段: Wechat request message: Create time */
 $handler->display->display_options['fields']['create_time']['id'] = 'create_time';
 $handler->display->display_options['fields']['create_time']['table'] = 'wechat_request_message';
 $handler->display->display_options['fields']['create_time']['field'] = 'create_time';
-/* Field: Wechat request message: From user name */
-$handler->display->display_options['fields']['from_user_name']['id'] = 'from_user_name';
-$handler->display->display_options['fields']['from_user_name']['table'] = 'wechat_request_message';
-$handler->display->display_options['fields']['from_user_name']['field'] = 'from_user_name';
-/* Field: Wechat request message: Message ID */
-$handler->display->display_options['fields']['msg_id']['id'] = 'msg_id';
-$handler->display->display_options['fields']['msg_id']['table'] = 'wechat_request_message';
-$handler->display->display_options['fields']['msg_id']['field'] = 'msg_id';
-/* Field: Wechat request message: Message type */
+$handler->display->display_options['fields']['create_time']['label'] = '创建日期';
+$handler->display->display_options['fields']['create_time']['date_format'] = 'short';
+$handler->display->display_options['fields']['create_time']['custom_date_format'] = 'Y-m-d';
+$handler->display->display_options['fields']['create_time']['second_date_format'] = 'long';
+/* 字段: Wechat user: headimgurl */
+$handler->display->display_options['fields']['headimgurl']['id'] = 'headimgurl';
+$handler->display->display_options['fields']['headimgurl']['table'] = 'wechat_user';
+$handler->display->display_options['fields']['headimgurl']['field'] = 'headimgurl';
+$handler->display->display_options['fields']['headimgurl']['relationship'] = 'from_user_name';
+$handler->display->display_options['fields']['headimgurl']['label'] = '用户头像';
+$handler->display->display_options['fields']['headimgurl']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['headimgurl']['alter']['text'] = '<img src="[headimgurl]" width="50px" height="50px" />';
+/* 字段: Wechat user: nickname */
+$handler->display->display_options['fields']['nickname']['id'] = 'nickname';
+$handler->display->display_options['fields']['nickname']['table'] = 'wechat_user';
+$handler->display->display_options['fields']['nickname']['field'] = 'nickname';
+$handler->display->display_options['fields']['nickname']['relationship'] = 'from_user_name';
+$handler->display->display_options['fields']['nickname']['label'] = '用户';
+/* 字段: Wechat request message: Message type */
 $handler->display->display_options['fields']['msg_type']['id'] = 'msg_type';
 $handler->display->display_options['fields']['msg_type']['table'] = 'wechat_request_message';
 $handler->display->display_options['fields']['msg_type']['field'] = 'msg_type';
-/* Field: Wechat request message: Rendered wechat request message */
+$handler->display->display_options['fields']['msg_type']['label'] = '消息类型';
+/* 字段: Wechat request message: Rendered wechat request message */
 $handler->display->display_options['fields']['rendered_entity']['id'] = 'rendered_entity';
 $handler->display->display_options['fields']['rendered_entity']['table'] = 'views_entity_wechat_request_message';
 $handler->display->display_options['fields']['rendered_entity']['field'] = 'rendered_entity';
+$handler->display->display_options['fields']['rendered_entity']['label'] = '消息内容';
 $handler->display->display_options['fields']['rendered_entity']['link_to_entity'] = 1;
 $handler->display->display_options['fields']['rendered_entity']['display'] = 'view';
 $handler->display->display_options['fields']['rendered_entity']['view_mode'] = 'full';
 $handler->display->display_options['fields']['rendered_entity']['bypass_access'] = 0;
-/* Field: Global: Custom text */
+/* 字段: Global: Custom text */
 $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
 $handler->display->display_options['fields']['nothing']['table'] = 'views';
 $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
 $handler->display->display_options['fields']['nothing']['label'] = '文本回复';
+$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
 $handler->display->display_options['fields']['nothing']['alter']['text'] = '文本';
 $handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
 $handler->display->display_options['fields']['nothing']['alter']['path'] = 'response-message/add/text?rm_id=[id]';
 $handler->display->display_options['fields']['nothing']['alter']['target'] = '_blank';
+$handler->display->display_options['fields']['nothing']['element_type'] = '0';
 $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
-/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing']['element_wrapper_type'] = '0';
+/* 字段: Global: Custom text */
 $handler->display->display_options['fields']['nothing_1']['id'] = 'nothing_1';
 $handler->display->display_options['fields']['nothing_1']['table'] = 'views';
 $handler->display->display_options['fields']['nothing_1']['field'] = 'nothing';
 $handler->display->display_options['fields']['nothing_1']['label'] = '图片回复';
+$handler->display->display_options['fields']['nothing_1']['exclude'] = TRUE;
 $handler->display->display_options['fields']['nothing_1']['alter']['text'] = '图片';
 $handler->display->display_options['fields']['nothing_1']['alter']['make_link'] = TRUE;
 $handler->display->display_options['fields']['nothing_1']['alter']['path'] = 'response-message/add/image?rm_id=[id]';
+$handler->display->display_options['fields']['nothing_1']['element_type'] = '0';
+$handler->display->display_options['fields']['nothing_1']['element_label_type'] = '0';
 $handler->display->display_options['fields']['nothing_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['nothing_1']['element_wrapper_type'] = '0';
+/* 字段: Global: Custom text */
+$handler->display->display_options['fields']['nothing_2']['id'] = 'nothing_2';
+$handler->display->display_options['fields']['nothing_2']['table'] = 'views';
+$handler->display->display_options['fields']['nothing_2']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing_2']['label'] = '视频回复';
+$handler->display->display_options['fields']['nothing_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing_2']['alter']['text'] = '视频';
+$handler->display->display_options['fields']['nothing_2']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing_2']['alter']['path'] = 'response-message/add/video?rm_id=[id]';
+$handler->display->display_options['fields']['nothing_2']['alter']['target'] = '_blank';
+$handler->display->display_options['fields']['nothing_2']['element_type'] = '0';
+$handler->display->display_options['fields']['nothing_2']['element_label_type'] = '0';
+$handler->display->display_options['fields']['nothing_2']['element_wrapper_type'] = '0';
+/* 字段: Global: Custom text */
+$handler->display->display_options['fields']['nothing_3']['id'] = 'nothing_3';
+$handler->display->display_options['fields']['nothing_3']['table'] = 'views';
+$handler->display->display_options['fields']['nothing_3']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing_3']['label'] = '回复';
+$handler->display->display_options['fields']['nothing_3']['alter']['text'] = '[nothing], [nothing_1], [nothing_2]';
+/* Sort criterion: Wechat request message: Create time */
+$handler->display->display_options['sorts']['create_time']['id'] = 'create_time';
+$handler->display->display_options['sorts']['create_time']['table'] = 'wechat_request_message';
+$handler->display->display_options['sorts']['create_time']['field'] = 'create_time';
+$handler->display->display_options['sorts']['create_time']['order'] = 'DESC';
 
 /* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page');
@@ -203,6 +251,39 @@ $handler->display->display_options['menu']['weight'] = '0';
 $handler->display->display_options['menu']['name'] = 'management';
 $handler->display->display_options['menu']['context'] = 0;
 $handler->display->display_options['menu']['context_only_inline'] = 0;
+$translatables['request_messages'] = array(
+  t('Master'),
+  t('request messages'),
+  t('more'),
+  t('Apply'),
+  t('重置'),
+  t('Sort by'),
+  t('Asc'),
+  t('Desc'),
+  t('Items per page'),
+  t('- All -'),
+  t('Offset'),
+  t('« 第一页'),
+  t('‹ 前一页'),
+  t('下一页 ›'),
+  t('末页 »'),
+  t('wechat user'),
+  t('创建日期'),
+  t('用户头像'),
+  t('<img src="[headimgurl]" width="50px" height="50px" />'),
+  t('用户'),
+  t('消息类型'),
+  t('消息内容'),
+  t('文本回复'),
+  t('文本'),
+  t('图片回复'),
+  t('图片'),
+  t('视频回复'),
+  t('视频'),
+  t('回复'),
+  t('[nothing], [nothing_1], [nothing_2]'),
+  t('Page'),
+);
 
   $views[$view->name] = $view;  
   
