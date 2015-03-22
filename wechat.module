@@ -1730,3 +1730,199 @@ function wechat_module_implements_alter(&$implements, $hook) {
     }
   }
 }
+
+/**
+ * Determines whether the given user has access to a wechat_response_message.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create', 'delete'
+ *   or just 'edit' (being the same as 'create' or 'update').
+ * @param $wechat_user
+ *   Optionally a wechat_user to check access for. If nothing is
+ *   given, access for all wechat_user is determined.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ * @return boolean
+ *   Whether access is allowed or not.
+ */
+function wechat_user_access($op, $wechat_user = NULL, $account = NULL) {
+  if (user_access('administer wechat user', $account)) {
+    return TRUE;
+  }
+  return TRUE;
+}
+
+/**
+ * Fetch a wechat request message object. 
+ *
+ * @param $openid
+ *   wechat user openid.
+ * @param $reset
+ *   A boolean indicating that the internal cache should be reset.
+ * @return
+ *   A fully-loaded $wechat_user object or FALSE if it cannot be loaded.
+ *
+ * @see wechat_user_load_multiple()
+ */
+function wechat_user_load($openid, $reset = FALSE) {
+  $wechat_users = wechat_user_load_multiple(array($openid), array(), $reset);
+  return reset($wechat_users);
+}
+
+
+/**
+ * Load multiple wechat user based on certain conditions.
+ *
+ * @param $openids
+ *   An array of wechat user openids.
+ * @param $conditions
+ *   An array of conditions to match against the {wechat_user} table.
+ * @param $reset
+ *   A boolean indicating that the internal cache should be reset.
+ * @return
+ *   An array of wechat user objects, indexed by openid.
+ *
+ * @see entity_load()
+ * @see wechat_user_load()
+ */
+function wechat_user_load_multiple($openids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('wechat_user', $openids, $conditions, $reset);
+}
+
+/**
+ * Deletes a wechat user.
+ */
+function wechat_user_delete(WechatUser $wechat_user) {
+  $wechat_user->delete();
+}
+
+
+/**
+ * Delete multiple wechat users.
+ *
+ * @param $openids
+ *   An array of wechat user openids.
+ */
+function wechat_user_delete_multiple(array $openids) {
+  entity_get_controller('wechat_user')->delete($openids);
+}
+
+
+/**
+ * Create a wechat user object.
+ */
+function wechat_user_create($values = array()) {
+  return new WechatUser($values);
+}
+
+
+/**
+ * Saves a wechat user to the database.
+ *
+ * @param $wechat_user
+ *   The wechat user object.
+ */
+function wechat_user_save(WechatUser $wechat_user) {
+  return $wechat_user->save();
+}
+
+/**
+ * URI callback for wechat_response_message
+ */
+function wechat_user_uri(WechatUser $wechat_user) {
+  return array(
+    'path' => 'wechat-user/' . $wechat_user->openid,
+  );
+}
+
+/**
+ * The class used for wechat_response_message entities
+ */
+class WechatUser extends Entity {
+  /**
+   * The uid of Drupal user.
+   *
+   * @var integer
+   */
+  public $uid;
+  
+  /**
+   * The openid of wechat user.
+   *
+   * @var string
+   */
+  public $openid;
+  
+  /**
+   * The subscribe status of wechat user.
+   *
+   * @var integer
+   */
+  public $subscribe;
+  
+
+  /**
+   * The nickname of wechat user.
+   *
+   * @var string
+   */
+  public $nickname;
+  
+  /**
+   * The sex of wechat user.
+   *
+   * @var integer
+   */
+  public $sex;  
+  
+  /**
+   * The province of wechat user.
+   *
+   * @var string
+   */
+  public $province;
+  
+  /**
+   * The city of wechat user.
+   *
+   * @var string
+   */
+  public $city;
+  
+  /**
+   * The country of wechat user.
+   *
+   * @var string
+   */
+  public $country;
+  
+  /**
+   * The headimgurl of wechat user.
+   *
+   * @var string
+   */
+  public $headimgurl; 
+  
+  /**
+   * The subscribe time of wechat user.
+   *
+   * @var integer
+   */
+  public $subscribe_time;
+  
+  public function __construct($values = array()) {
+    parent::__construct($values, 'wechat_user');
+  }
+
+  protected function defaultLabel() {
+    return $this->openid;
+  }
+
+  protected function defaultUri() {
+    return array('path' => 'wechat-user/' . $this->openid);
+  }
+  
+  public function save() {
+    parent::save();
+  }
+}
