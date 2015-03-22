@@ -1,3 +1,7 @@
 #wechat-response-message-edit-form .field-name-wechat-media-id{
   display:none;
 }
+
+#wechat-response-message-edit-form .field-name-wechat-thumb-media-id{
+  display:none;
+}
