@@ -155,6 +155,12 @@ $handler->display->display_options['style_options']['info'] = array(
 $handler->display->display_options['relationships']['from_user_name']['id'] = 'from_user_name';
 $handler->display->display_options['relationships']['from_user_name']['table'] = 'wechat_request_message';
 $handler->display->display_options['relationships']['from_user_name']['field'] = 'from_user_name';
+/* 字段: Wechat request message: Wechat request message ID */
+$handler->display->display_options['fields']['id']['id'] = 'id';
+$handler->display->display_options['fields']['id']['table'] = 'wechat_request_message';
+$handler->display->display_options['fields']['id']['field'] = 'id';
+$handler->display->display_options['fields']['id']['exclude'] = TRUE;
+$handler->display->display_options['fields']['id']['separator'] = '';
 /* 字段: Wechat request message: Create time */
 $handler->display->display_options['fields']['create_time']['id'] = 'create_time';
 $handler->display->display_options['fields']['create_time']['table'] = 'wechat_request_message';
@@ -268,6 +274,8 @@ $translatables['request_messages'] = array(
   t('下一页 ›'),
   t('末页 »'),
   t('wechat user'),
+  t('Wechat request message ID'),
+  t('.'),
   t('创建日期'),
   t('用户头像'),
   t('<img src="[headimgurl]" width="50px" height="50px" />'),
