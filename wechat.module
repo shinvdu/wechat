@@ -59,7 +59,7 @@ function wechat_menu() {
     'weight' => 1,
   ); 
   $items['admin/wechat/config/update-menu'] = array(
-    'title' => 'Update wechat menu',
+    'title' => 'Update menu',
     'access arguments' => array('access administration pages'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wechat_update_menu_form'),
@@ -745,7 +745,7 @@ function wechat_entity_info() {
       'file' => 'wechat.admin.inc',
       'controller class' => 'WechatResponseMessageTypeUIController',
     ),
-  );
+  ); 
 
   $return['wechat_user'] = array(
     'label' => t('Wechat user'),
@@ -769,7 +769,7 @@ function wechat_entity_info() {
 	    ),
 	  ),
     ),
-  );
+  );  
   
   return $return;
 }
@@ -1712,24 +1712,12 @@ function wechat_build_news_article($node, $position=0){
   if (!empty($field_image)) {
     $article_item['picurl'] = $node_wrapper->field_image->file->url->value();
   }
+  
   drupal_alter('wechat_news_article', $article_item, $node, $position);
   return $article_item;
+  
 }
 
-/**
- * Implement hook_module_implement_alter().
- */
-function wechat_module_implements_alter(&$implements, $hook) {
-  //the wechat menu confict with menu_attributes, so here we just unset the
-  //implement of menu_attributes on menu_links belong to wechat menu.
-  if ($hook = 'form_alter' && isset($implements['menu_attributes'])) {
-    if (drupal_match_path(current_path(), 'admin/structure/menu/item/*/edit') && $menu_link = menu_link_load(arg(4))) {
-      if ($menu_link['menu_name'] == 'wechat') {
-        unset($implements['menu_attributes']);
-      }
-    }
-  }
-}
 
 /**
  * Determines whether the given user has access to a wechat_response_message.
@@ -1745,7 +1733,7 @@ function wechat_module_implements_alter(&$implements, $hook) {
  * @return boolean
  *   Whether access is allowed or not.
  */
-function wechat_user_access($op, $wechat_user = NULL, $account = NULL) {
+function wechat_wechatuser_access($op, $wechat_user = NULL, $account = NULL) {
   if (user_access('administer wechat user', $account)) {
     return TRUE;
   }
@@ -1764,7 +1752,7 @@ function wechat_user_access($op, $wechat_user = NULL, $account = NULL) {
  *
  * @see wechat_user_load_multiple()
  */
-function wechat_user_load($openid, $reset = FALSE) {
+function wechat_wechatuser_load($openid, $reset = FALSE) {
   $wechat_users = wechat_user_load_multiple(array($openid), array(), $reset);
   return reset($wechat_users);
 }
@@ -1785,14 +1773,14 @@ function wechat_user_load($openid, $reset = FALSE) {
  * @see entity_load()
  * @see wechat_user_load()
  */
-function wechat_user_load_multiple($openids = array(), $conditions = array(), $reset = FALSE) {
+function wechat_wechatuser_load_multiple($openids = array(), $conditions = array(), $reset = FALSE) {
   return entity_load('wechat_user', $openids, $conditions, $reset);
 }
 
 /**
  * Deletes a wechat user.
  */
-function wechat_user_delete(WechatUser $wechat_user) {
+function wechat_wechatuser_delete(WechatUser $wechat_user) {
   $wechat_user->delete();
 }
 
@@ -1803,7 +1791,7 @@ function wechat_user_delete(WechatUser $wechat_user) {
  * @param $openids
  *   An array of wechat user openids.
  */
-function wechat_user_delete_multiple(array $openids) {
+function wechat_wechatuser_delete_multiple(array $openids) {
   entity_get_controller('wechat_user')->delete($openids);
 }
 
@@ -1811,7 +1799,7 @@ function wechat_user_delete_multiple(array $openids) {
 /**
  * Create a wechat user object.
  */
-function wechat_user_create($values = array()) {
+function wechat_wechatuser_create($values = array()) {
   return new WechatUser($values);
 }
 
@@ -1822,14 +1810,14 @@ function wechat_user_create($values = array()) {
  * @param $wechat_user
  *   The wechat user object.
  */
-function wechat_user_save(WechatUser $wechat_user) {
+function wechat_wechatuser_save(WechatUser $wechat_user) {
   return $wechat_user->save();
 }
 
 /**
  * URI callback for wechat_response_message
  */
-function wechat_user_uri(WechatUser $wechat_user) {
+function wechat_wechatuser_uri(WechatUser $wechat_user) {
   return array(
     'path' => 'wechat-user/' . $wechat_user->openid,
   );
