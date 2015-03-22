@@ -48,10 +48,9 @@ class WechatRequestMessageMetadataController extends EntityDefaultMetadataContro
     );
 
     $properties['create_time'] = array(
-      'type' => 'integer',
+      'type' => 'date',
       'label' => t('Create time'),
       'description' => t('Create time of wechat request message.'),
-      'getter callback' => 'entity_property_verbatim_get',
       'setter callback' => 'entity_property_verbatim_set',
       'setter permission' => 'administer wechat request message',
       'schema field' => 'create_time',
@@ -112,10 +111,9 @@ class WechatResponseMessageMetadataController extends EntityDefaultMetadataContr
     );
 
     $properties['create_time'] = array(
-      'type' => 'integer',
+      'type' => 'date',
       'label' => t('Create time'),
       'description' => t('Create time of wechat response message.'),
-      'getter callback' => 'entity_property_verbatim_get',
       'setter callback' => 'entity_property_verbatim_set',
       'setter permission' => 'administer wechat response message',
       'schema field' => 'create_time',
@@ -246,10 +244,9 @@ class WechatUserMetadataController extends EntityDefaultMetadataController {
     );
 
     $properties['subscribe_time'] = array(
-      'type' => 'integer',
+      'type' => 'date',
       'label' => t('Subscribe time'),
       'description' => t('Subscribe time of wechat response message.'),
-      'getter callback' => 'entity_property_verbatim_get',
       'setter callback' => 'entity_property_verbatim_set',
       'setter permission' => 'administer wechat response message',
       'schema field' => 'subscribe_time',
