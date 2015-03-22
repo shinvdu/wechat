@@ -408,6 +408,147 @@ $translatables['wechat_users'] = array(
   t('Page'),
 );
   $views[$view->name] = $view;
-  
+ 
+$view = new view();
+$view->name = 'response_messages';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'wechat_response_message';
+$view->human_name = 'response messages';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'none';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+$handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+$handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+$handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'id' => 'id',
+  'create_time' => 'create_time',
+  'from_user_name' => 'from_user_name',
+  'to_user_name' => 'to_user_name',
+  'rendered_entity' => 'rendered_entity',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'id' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'create_time' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'from_user_name' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'to_user_name' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'rendered_entity' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+/* Relationship: Wechat response message: wechat user */
+$handler->display->display_options['relationships']['to_user_name']['id'] = 'to_user_name';
+$handler->display->display_options['relationships']['to_user_name']['table'] = 'wechat_response_message';
+$handler->display->display_options['relationships']['to_user_name']['field'] = 'to_user_name';
+/* 字段: Wechat response message: Create time */
+$handler->display->display_options['fields']['create_time']['id'] = 'create_time';
+$handler->display->display_options['fields']['create_time']['table'] = 'wechat_response_message';
+$handler->display->display_options['fields']['create_time']['field'] = 'create_time';
+$handler->display->display_options['fields']['create_time']['label'] = '创建日期';
+$handler->display->display_options['fields']['create_time']['date_format'] = 'short';
+$handler->display->display_options['fields']['create_time']['second_date_format'] = 'long';
+/* 字段: Wechat user: headimgurl */
+$handler->display->display_options['fields']['headimgurl']['id'] = 'headimgurl';
+$handler->display->display_options['fields']['headimgurl']['table'] = 'wechat_user';
+$handler->display->display_options['fields']['headimgurl']['field'] = 'headimgurl';
+$handler->display->display_options['fields']['headimgurl']['relationship'] = 'to_user_name';
+$handler->display->display_options['fields']['headimgurl']['label'] = '头像';
+$handler->display->display_options['fields']['headimgurl']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['headimgurl']['alter']['text'] = '<img src="[headimgurl]" width="50px" height="50px" />';
+/* 字段: Wechat user: nickname */
+$handler->display->display_options['fields']['nickname']['id'] = 'nickname';
+$handler->display->display_options['fields']['nickname']['table'] = 'wechat_user';
+$handler->display->display_options['fields']['nickname']['field'] = 'nickname';
+$handler->display->display_options['fields']['nickname']['relationship'] = 'to_user_name';
+$handler->display->display_options['fields']['nickname']['label'] = '昵称';
+/* 字段: Wechat response message: Rendered wechat response message */
+$handler->display->display_options['fields']['rendered_entity']['id'] = 'rendered_entity';
+$handler->display->display_options['fields']['rendered_entity']['table'] = 'views_entity_wechat_response_message';
+$handler->display->display_options['fields']['rendered_entity']['field'] = 'rendered_entity';
+$handler->display->display_options['fields']['rendered_entity']['label'] = '回复内容';
+$handler->display->display_options['fields']['rendered_entity']['link_to_entity'] = 1;
+$handler->display->display_options['fields']['rendered_entity']['display'] = 'view';
+$handler->display->display_options['fields']['rendered_entity']['view_mode'] = 'full';
+$handler->display->display_options['fields']['rendered_entity']['bypass_access'] = 0;
+/* Sort criterion: Wechat response message: Create time */
+$handler->display->display_options['sorts']['create_time']['id'] = 'create_time';
+$handler->display->display_options['sorts']['create_time']['table'] = 'wechat_response_message';
+$handler->display->display_options['sorts']['create_time']['field'] = 'create_time';
+$handler->display->display_options['sorts']['create_time']['order'] = 'DESC';
+
+/* Display: 页面 */
+$handler = $view->new_display('page', '页面', 'page_1');
+$handler->display->display_options['path'] = 'admin/wechat/response-messages';
+$handler->display->display_options['menu']['type'] = 'normal';
+$handler->display->display_options['menu']['title'] = 'response messages';
+$handler->display->display_options['menu']['weight'] = '0';
+$handler->display->display_options['menu']['name'] = 'management';
+$handler->display->display_options['menu']['context'] = 0;
+$handler->display->display_options['menu']['context_only_inline'] = 0;
+$translatables['response_messages'] = array(
+  t('Master'),
+  t('more'),
+  t('Apply'),
+  t('重置'),
+  t('Sort by'),
+  t('Asc'),
+  t('Desc'),
+  t('Items per page'),
+  t('- All -'),
+  t('Offset'),
+  t('« 第一页'),
+  t('‹ 前一页'),
+  t('下一页 ›'),
+  t('末页 »'),
+  t('wechat user'),
+  t('创建日期'),
+  t('头像'),
+  t('<img src="[headimgurl]" width="50px" height="50px" />'),
+  t('昵称'),
+  t('回复内容'),
+  t('页面'),
+);
+
+  $views[$view->name] = $view; 
   return $views;
 }
