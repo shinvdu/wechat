@@ -1753,7 +1753,7 @@ function wechat_wechatuser_access($op, $wechat_user = NULL, $account = NULL) {
  * @see wechat_user_load_multiple()
  */
 function wechat_wechatuser_load($openid, $reset = FALSE) {
-  $wechat_users = wechat_user_load_multiple(array($openid), array(), $reset);
+  $wechat_users = wechat_wechatuser_load_multiple(array($openid), array(), $reset);
   return reset($wechat_users);
 }
 
@@ -1912,5 +1912,19 @@ class WechatUser extends Entity {
   
   public function save() {
     parent::save();
+  }
+}
+
+/**
+ * Implementation of hook_wechat_request_message_insert().
+ */
+function wechat_wechat_request_message_insert($request_message) {
+
+  $request_message_wrapper = entity_metadata_wrapper('wechat_request_message', $request_message);  
+  $openid = $request_message->from_user_name;
+  $wechatuser = wechat_wechatuser_load($openid);
+  if(empty($wechatuser)){
+    $uid = 0;
+    $result = wechat_connect_user($uid, $openid);    
   }
 }
