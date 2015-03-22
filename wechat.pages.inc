@@ -361,7 +361,16 @@ function wechat_update_user_info($openid) {
   if ($user_info) {
     db_merge('wechat_user')
       ->key(array('openid' => $user_info['openid']))
-      ->fields(array(
+      ->updateFields(array(
+          'nickname' => $user_info['nickname'],
+          'sex' => $user_info['sex'],
+          'province' => $user_info['province'],
+          'city' => $user_info['city'],
+          'country' => $user_info['country'],
+          'headimgurl' => $user_info['headimgurl'],
+      ))
+      ->insertFields(array(
+          'openid' => $user_info['openid'],
           'nickname' => $user_info['nickname'],
           'sex' => $user_info['sex'],
           'province' => $user_info['province'],
