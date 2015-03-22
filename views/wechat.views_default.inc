@@ -205,5 +205,128 @@ $handler->display->display_options['menu']['context'] = 0;
 $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   $views[$view->name] = $view;  
+  
+$view = new view();
+$view->name = 'wechat_users';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'wechat_user';
+$view->human_name = 'wechat users';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'wechat users';
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'none';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '20';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['pager']['options']['id'] = '0';
+$handler->display->display_options['pager']['options']['quantity'] = '9';
+$handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+$handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+$handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+$handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+$handler->display->display_options['style_plugin'] = 'table';
+/* 字段: Wechat user: country */
+$handler->display->display_options['fields']['country']['id'] = 'country';
+$handler->display->display_options['fields']['country']['table'] = 'wechat_user';
+$handler->display->display_options['fields']['country']['field'] = 'country';
+$handler->display->display_options['fields']['country']['label'] = 'Country';
+/* 字段: Wechat user: province */
+$handler->display->display_options['fields']['province']['id'] = 'province';
+$handler->display->display_options['fields']['province']['table'] = 'wechat_user';
+$handler->display->display_options['fields']['province']['field'] = 'province';
+$handler->display->display_options['fields']['province']['label'] = 'Province';
+/* 字段: Wechat user: city */
+$handler->display->display_options['fields']['city']['id'] = 'city';
+$handler->display->display_options['fields']['city']['table'] = 'wechat_user';
+$handler->display->display_options['fields']['city']['field'] = 'city';
+$handler->display->display_options['fields']['city']['label'] = 'City';
+/* 字段: Wechat user: headimgurl */
+$handler->display->display_options['fields']['headimgurl']['id'] = 'headimgurl';
+$handler->display->display_options['fields']['headimgurl']['table'] = 'wechat_user';
+$handler->display->display_options['fields']['headimgurl']['field'] = 'headimgurl';
+$handler->display->display_options['fields']['headimgurl']['label'] = 'Headimgurl';
+$handler->display->display_options['fields']['headimgurl']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['headimgurl']['alter']['text'] = '<img src="[headimgurl]" width="50px" height="50px" />';
+/* 字段: Wechat user: nickname */
+$handler->display->display_options['fields']['nickname']['id'] = 'nickname';
+$handler->display->display_options['fields']['nickname']['table'] = 'wechat_user';
+$handler->display->display_options['fields']['nickname']['field'] = 'nickname';
+$handler->display->display_options['fields']['nickname']['label'] = 'Nickname';
+/* 字段: Wechat user: sex */
+$handler->display->display_options['fields']['sex']['id'] = 'sex';
+$handler->display->display_options['fields']['sex']['table'] = 'wechat_user';
+$handler->display->display_options['fields']['sex']['field'] = 'sex';
+$handler->display->display_options['fields']['sex']['label'] = 'Sex';
+/* 字段: Wechat user: Subscribe time */
+$handler->display->display_options['fields']['subscribe_time']['id'] = 'subscribe_time';
+$handler->display->display_options['fields']['subscribe_time']['table'] = 'wechat_user';
+$handler->display->display_options['fields']['subscribe_time']['field'] = 'subscribe_time';
+$handler->display->display_options['fields']['subscribe_time']['label'] = 'Subscribe_time';
+$handler->display->display_options['fields']['subscribe_time']['date_format'] = 'short';
+$handler->display->display_options['fields']['subscribe_time']['second_date_format'] = 'long';
+/* Sort criterion: Wechat user: Subscribe time */
+$handler->display->display_options['sorts']['subscribe_time']['id'] = 'subscribe_time';
+$handler->display->display_options['sorts']['subscribe_time']['table'] = 'wechat_user';
+$handler->display->display_options['sorts']['subscribe_time']['field'] = 'subscribe_time';
+$handler->display->display_options['sorts']['subscribe_time']['order'] = 'DESC';
+$handler->display->display_options['sorts']['subscribe_time']['exposed'] = TRUE;
+$handler->display->display_options['sorts']['subscribe_time']['expose']['label'] = 'Subscribe time';
+/* Sort criterion: Wechat user: nickname */
+$handler->display->display_options['sorts']['nickname']['id'] = 'nickname';
+$handler->display->display_options['sorts']['nickname']['table'] = 'wechat_user';
+$handler->display->display_options['sorts']['nickname']['field'] = 'nickname';
+$handler->display->display_options['sorts']['nickname']['order'] = 'DESC';
+$handler->display->display_options['sorts']['nickname']['exposed'] = TRUE;
+$handler->display->display_options['sorts']['nickname']['expose']['label'] = 'nickname';
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page');
+$handler->display->display_options['path'] = 'admin/wechat/wechat-users';
+$handler->display->display_options['menu']['type'] = 'normal';
+$handler->display->display_options['menu']['title'] = 'Wechat users';
+$handler->display->display_options['menu']['weight'] = '0';
+$handler->display->display_options['menu']['name'] = 'management';
+$handler->display->display_options['menu']['context'] = 0;
+$handler->display->display_options['menu']['context_only_inline'] = 0;
+$translatables['wechat_users'] = array(
+  t('Master'),
+  t('wechat users'),
+  t('more'),
+  t('Apply'),
+  t('重置'),
+  t('Sort by'),
+  t('Asc'),
+  t('Desc'),
+  t('Items per page'),
+  t('- All -'),
+  t('Offset'),
+  t('« 第一页'),
+  t('‹ 前一页'),
+  t('下一页 ›'),
+  t('末页 »'),
+  t('Country'),
+  t('Province'),
+  t('City'),
+  t('Headimgurl'),
+  t('<img src="[headimgurl]" width="50px" height="50px" />'),
+  t('Nickname'),
+  t('Sex'),
+  t('Subscribe_time'),
+  t('Subscribe time'),
+  t('nickname'),
+  t('Page'),
+);
+  $views[$view->name] = $view;
+  
   return $views;
 }
