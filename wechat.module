@@ -765,7 +765,7 @@ function wechat_entity_info() {
 	  'wechat_user' => array(
 	    'label' => t('Wechat user'),
 	    'admin' => array(
-		  'path' => 'admin/wechat/config/user',
+		  'path' => 'admin/wechat/wechat-users',
 		  'access arguments' => array('administer users'),
 	    ),
 	  ),
