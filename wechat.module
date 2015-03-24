@@ -1703,9 +1703,12 @@ function wechat_build_news_article($node, $position=0){
   $node_wrapper = entity_metadata_wrapper('node', $node); 
   $article_item['title'] = $node->title;
   $article_item['url'] = url('node/' . $node->nid, array('absolute' => TRUE));
-  if (isset($node_wrapper->body)) {
-    $content = $node_wrapper->body->value->value(array('decode' => TRUE));
-    $article_item['description'] = $content;
+  if (!empty($node_wrapper->body->value)) {
+    try{
+      $content = $node_wrapper->body->value->value(array('decode' => TRUE));
+      $article_item['description'] = $content;
+    }
+    catch(Exception $e){}
   }
   if (isset($node_wrapper->field_image)) {
     $field_image = $node_wrapper->field_image->value(); 
