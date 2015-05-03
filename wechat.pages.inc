@@ -75,8 +75,14 @@ function wechat_build_response_message($request_message) {
       elseif ($request_message_wrapper->wechat_event->value() == 'CLICK') {
         $event = array();
         $event['key'] = $request_message_wrapper->wechat_event_key->value();
-        $default_message_content = _wechat_menu_default_message($event);
-        $response_message_wrapper->wechat_content->set($default_message_content);
+		if($event['key'] == 'userbinding'){
+          $default_message_content = "点击链接绑定用户：";
+		  $default_message_content .= l('绑定账号', 'wechat/binding', array('query' => array('openid' => $request_message->from_user_name), 'absolute' => TRUE));
+          $response_message_wrapper->wechat_content->set($default_message_content);		
+		}else{
+          $default_message_content = _wechat_menu_default_message($event);
+          $response_message_wrapper->wechat_content->set($default_message_content);
+		}
       }
     }
     $wechat_content = $response_message_wrapper->wechat_content->value();
