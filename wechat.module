@@ -437,8 +437,15 @@ function wechat_response_message_obj_to_xml(WechatResponseMessage $message) {
     $result_str .= "</Articles>";
     $result_str .= "</xml>";
 
-  } 
-
+  }
+  //允许其它模块实现新的相应消息转XML
+  foreach (module_implements("wechat_response_message_obj_to_xml") as $module) {
+    $function = $module . '_' . "wechat_response_message_obj_to_xml";
+    if (function_exists($function)) {
+	  $result_str = $function($message);
+    }
+  }
+  
   return $result_str;
 }
 
