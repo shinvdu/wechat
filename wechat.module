@@ -1706,6 +1706,7 @@ function wechat_build_news_article($node, $position=0){
   if (!empty($node_wrapper->body->value)) {
     try{
       $content = $node_wrapper->body->value->value(array('decode' => TRUE));
+      $content = substr($content, 0, 600);
       $article_item['description'] = $content;
     }
     catch(Exception $e){}
