@@ -133,6 +133,48 @@ function wechat_field_default_field_bases() {
     'type' => 'text',
   );
 
+  // Exported field_base: 'wechat_scantype'  
+  $field_bases['wechat_scantype'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'wechat_scantype',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'max_length' => 255,
+    ),
+    'translatable' => 0,
+    'type' => 'text',
+  );
+
+  // Exported field_base: 'wechat_scanresult'   
+  $field_bases['wechat_scanresult'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'wechat_scanresult',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'max_length' => 255,
+    ),
+    'translatable' => 0,
+    'type' => 'text',
+  );
+  
   // Exported field_base: 'wechat_format'
   $field_bases['wechat_format'] = array(
     'active' => 1,

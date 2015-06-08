@@ -39,3 +39,10 @@ features[field_instance][] = node-wechat_mass_message-field_total_count
 features[field_instance][] = node-wechat_mass_message-field_video
 features[field_instance][] = node-wechat_mass_message-field_voice
 features[node][] = wechat_mass_message
+
+; Information added by Drupal.org packaging script on 2015-05-03
+version = "7.x-1.0-beta3+1-dev"
+core = "7.x"
+project = "wechat"
+datestamp = "1430659685"
+

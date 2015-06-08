@@ -177,6 +177,74 @@ function wechat_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'wechat_request_message-event-wechat_scantype'
+  $field_instances['wechat_request_message-event-wechat_scantype'] = array(
+    'bundle' => 'event',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 7,
+      ),
+    ),
+    'entity_type' => 'wechat_request_message',
+    'field_name' => 'wechat_scantype',
+    'label' => 'ScanType',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 7,
+    ),
+  );
+
+  // Exported field_instance: 'wechat_request_message-event-wechat_scanresult'
+  $field_instances['wechat_request_message-event-wechat_scanresult'] = array(
+    'bundle' => 'event',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 8,
+      ),
+    ),
+    'entity_type' => 'wechat_request_message',
+    'field_name' => 'wechat_scanresult',
+    'label' => 'ScanResult',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 8,
+    ),
+  );
+  
   // Exported field_instance: 'wechat_request_message-event-wechat_ticket'
   $field_instances['wechat_request_message-event-wechat_ticket'] = array(
     'bundle' => 'event',
