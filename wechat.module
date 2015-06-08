@@ -319,6 +319,18 @@ function wechat_build_request_message($request_data) {
     if (isset($xml_obj->Precision)) {
       $message_wrapper->wechat_precision->set($xml_obj->Precision);
     }
+    if (isset($xml_obj->ScanCodeInfo)) {
+     // $message_wrapper->wechat_scantype->set($xml_obj->ScanCodeInfo->ScanType);
+	 $scan_code_info = (array)$xml_obj->ScanCodeInfo;
+      if(isset($scan_code_info['ScanType'])){
+       $message_wrapper->wechat_scantype->set($scan_code_info['ScanType']);
+      }
+      if(isset($scan_code_info['ScanResult'])){
+       $message_wrapper->wechat_scanresult->set($scan_code_info['ScanResult']);
+      }	  
+      //watchdog('wechat', '1234:'. var_export($xml_obj->ScanCodeInfo->ScanType[0],true));
+      //watchdog('wechat', '123456:'. var_export($scan_code_info,true));
+    }
 
   }   
   $message_wrapper->save(true);
@@ -1419,14 +1431,24 @@ function _wechat_menu_form_alter(array &$form, array $item = array(), array &$co
     '#collapsed' => FALSE,
     '#tree' => TRUE,
   );
-
+  $menu_type_options = array(
+    'click' => t('点击推事件'),
+    'view' => t('跳转URL'),
+    'scancode_push' => t('扫码推事件'),
+    'scancode_waitmsg' => t('扫码推事件且弹出“消息接收中”提示框'),
+    'pic_sysphoto' => t('弹出系统拍照发图'),
+    'pic_photo_or_album' => t('弹出拍照或者相册发图'),
+    'pic_weixin' => t('弹出微信相册发图器'),
+    'location_select' => t('弹出地理位置选择器'),
+  );
   $form['options']['attributes']['wechat_type'] = array(
     '#type' => 'radios',
     '#title' => t('Menu Type'),
     '#default_value' => isset($item['options']['attributes']['wechat_type']) ? $item['options']['attributes']['wechat_type'] : 'click',
-    '#options' => array('click' => t('Click'), 'view' => t('View')),
-    '#description' => t('Click: send click event to server, View: open menu url.'),
-      '#required' => TRUE,
+    //'#options' => array('click' => t('Click'), 'view' => t('View')),
+    '#options' => $menu_type_options,
+    //'#description' => t('Click: 点击推事件, View: 跳转URL, .'),
+    '#required' => TRUE,
   );
   $form['options']['attributes']['wechat_key'] = array(
     '#type' => 'textfield',
@@ -1435,7 +1457,15 @@ function _wechat_menu_form_alter(array &$form, array $item = array(), array &$co
     '#default_value' => isset($item['options']['attributes']['wechat_key']) ? $item['options']['attributes']['wechat_key'] : '',
     '#states' => array(
       'visible' => array(
-        ':input[name="options[attributes][wechat_type]"]' => array('value' => 'click'),
+        ':input[name="options[attributes][wechat_type]"]' => array(
+          array('value' => 'click'),
+          array('value' => 'scancode_push'),
+          array('value' => 'scancode_waitmsg'),
+          array('value' => 'pic_sysphoto'),
+          array('value' => 'pic_photo_or_album'),
+          array('value' => 'pic_weixin'),
+          array('value' => 'location_select'),
+		),
       ),
     ),
   );
@@ -1465,12 +1495,12 @@ function _wechat_menu_form_alter(array &$form, array $item = array(), array &$co
 }
 
 function _wechat_menu_form_validate($form, &$form_state) {
-  if ($form_state['values']['options']['attributes']['wechat_type'] == 'click') {
+  if ($form_state['values']['options']['attributes']['wechat_type'] != 'view') {
     if (empty($form_state['values']['options']['attributes']['wechat_key'])) {
       form_set_error('wechat_key', t('Menu KEY is required'));
     }
   }
-  else {
+  elseif ($form_state['values']['options']['attributes']['wechat_type'] == 'view') {
     if (!valid_url($form_state['values']['options']['attributes']['wechat_url'], TRUE)) {
       form_set_error('wechat_url', t('Please enter a url.'));
     }
@@ -1643,10 +1673,13 @@ function wechat_wechat_build_response_message($response_message, $request_messag
     //watchdog('wechat', '进入event'); 
     //用户关注我们的情况
     if ($request_message_wrapper->wechat_event->value() == 'subscribe') {
-
+      $uid = 0;
+      $openid = $request_message->from_user_name;
+      $result = wechat_connect_user($uid, $openid);
     }
     //用户扫描二维码，绑定账号
     $wechat_event = $request_message_wrapper->wechat_event->value();
+
     //watchdog('wechat', 'wechat_event:' .$wechat_event); 
     //注意，这里返回的是大写的SCAN，原来用的小写，不行
     if ($request_message_wrapper->wechat_event->value() == 'SCAN') {
