@@ -116,13 +116,15 @@ function _wechat_menu_item($subval) {
   $subelement = array();
   $subelement['name'] = $subval['link']['link_title'];
   if (isset($subval['link']['options']['attributes']['wechat_type'])
-  && $subval['link']['options']['attributes']['wechat_type'] == 'click') {
-    $subelement['type'] = 'click';
-    $subelement['key'] = $subval['link']['options']['attributes']['wechat_key'];
+  && $subval['link']['options']['attributes']['wechat_type'] == 'view') {
+   // $subelement['type'] = 'click';
+  //  $subelement['key'] = $subval['link']['options']['attributes']['wechat_key'];
+    $subelement['type'] = 'view';
+    $subelement['url'] = $subval['link']['options']['attributes']['wechat_url'];	
   }
   else {
-    $subelement['type'] = 'view';
-    $subelement['url'] = $subval['link']['options']['attributes']['wechat_url'];
+    $subelement['type'] = $subval['link']['options']['attributes']['wechat_type'];
+    $subelement['key'] = $subval['link']['options']['attributes']['wechat_key'];
   }
   return $subelement;
 }
