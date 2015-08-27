@@ -90,6 +90,13 @@ function wechat_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'wechat.pages.inc',
   );
+  $items['wechat-binding'] = array(
+    'title' => 'Wechat binding',
+    'page callback' => 'wechat_binding_from_wechat',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'wechat.pages.inc',
+  );  
   $items['admin/wechat/user'] = array(
     'title' => 'wechat users',
     'page callback' => 'wechat_get_user_list',
