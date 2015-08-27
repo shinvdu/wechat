@@ -1677,6 +1677,10 @@ function wechat_wechat_build_response_message($response_message, $request_messag
       $openid = $request_message->from_user_name;
       $result = wechat_connect_user($uid, $openid);
     }
+    if ($request_message_wrapper->wechat_event->value() == 'unsubscribe') {
+      $openid = $request_message->from_user_name;
+      db_query('delete FROM {wechat_user} WHERE openid=:openid', array(':openid' => $openid));
+    }	
     //用户扫描二维码，绑定账号
     $wechat_event = $request_message_wrapper->wechat_event->value();
 
