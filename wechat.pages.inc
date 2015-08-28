@@ -578,7 +578,7 @@ function wechat_binding_from_wechat(){
   $we_obj = _wechat_init_obj();
   $access_data = $we_obj->getOauthAccessToken();
   if (empty($access_data['openid'])) {
-    $output = "系统出现错误，请重试";
+    $output = "系统出现错误，请重试123";
 	return  $output;
   }
   $openid = $access_data['openid'];
@@ -596,7 +596,12 @@ function wechat_binding_from_wechat(){
      $output .= "";
 	 $wechat_binding_from_wechat_auto_form = drupal_get_form('wechat_binding_from_wechat_auto_form', $openid);
 	 $output .= "<div class='wechat-binding-auto-form'>" . drupal_render($wechat_binding_from_wechat_auto_form) .  '</div>';
+	 $wechat_binding_from_wechat_bind_form = drupal_get_form('wechat_binding_from_wechat_bind_form', $openid);
+	 $output .= "<div class='wechat-binding-bind-form'>" . drupal_render($wechat_binding_from_wechat_bind_form) .  '</div>';
+	 $wechat_binding_from_wechat_register_form = drupal_get_form('wechat_binding_from_wechat_register_form', $openid);
+	 $output .= "<div class='wechat-binding-register-form'>" . drupal_render($wechat_binding_from_wechat_register_form) .  '</div>';	 
   }  
+  return $output;
 }
 
 /**
@@ -609,6 +614,7 @@ function wechat_binding_from_wechat_auto_form($form, &$form_state, $openid) {
   $form['openid'] = array('#type' => 'value',
     '#value' => $openid,
   );
+  $form['#submit'][] = 'wechat_binding_from_wechat_auto_form_submit';
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('自动创建账号并绑定'));
 
@@ -616,6 +622,9 @@ function wechat_binding_from_wechat_auto_form($form, &$form_state, $openid) {
 }
 
 function wechat_binding_from_wechat_auto_form_submit($form, &$form_state) {
+
+    drupal_set_message('123456'); 
+	watchdog('wechat_binding','wechat_binding_from_wechat_auto_form_submit' );
   // auto register
   $openid = $form_state['values']['openid'];
   $user_name = 'wechat_' . substr($openid, 0, 15);
@@ -673,7 +682,7 @@ function wechat_binding_from_wechat_bind_form($form, &$form_state, $openid) {
   $form['#validate'] = user_login_default_validators();
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('绑定已有账号'));
-
+  $form['#submit'][] = 'wechat_binding_from_wechat_bind_form_submit';
   return $form;
 }
 
