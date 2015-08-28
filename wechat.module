@@ -1490,6 +1490,7 @@ function _wechat_menu_form_alter(array &$form, array $item = array(), array &$co
   $form['options']['attributes']['wechat_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Menu Open URL'),
+	'#maxlength' => 512,
     '#description' => t('Open this URL if menu type is view.'),
     '#default_value' => isset($item['options']['attributes']['wechat_url']) ? $item['options']['attributes']['wechat_url'] : '',
       '#states' => array(
