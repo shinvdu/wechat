@@ -575,14 +575,23 @@ function wechat_binding_from_wechat(){
   $output = "";
   $state = isset($_GET['state']) ? $_GET['state'] : 0;
   $code = isset($_GET['code']) ? $_GET['code'] : '';
-  $we_obj = _wechat_init_obj();
-  $access_data = $we_obj->getOauthAccessToken();
-  if (empty($access_data['openid'])) {
-    $output = "系统出现错误，请重试123";
-	return  $output;
+  $wechat_bind_code = isset($_SESSION['wechat_bind_code']) ? $_SESSION['wechat_bind_code'] : '';  
+  if($wechat_bind_code!=$code){
+    $we_obj = _wechat_init_obj();
+    $access_data = $we_obj->getOauthAccessToken();
+    if (empty($access_data['openid'])) {
+      $output = "系统出现错误，请重试123";
+	  return  $output;
+    }
+    $openid = $access_data['openid'];
+	$_SESSION['wechat_bind_code'] = $code;
+	$_SESSION['wechat_bind_openid'] = $openid;
   }
-  $openid = $access_data['openid'];
-  $output .= "openid：" .$openid;
+  else{
+     $openid = isset($_SESSION['wechat_bind_openid']) ? $_SESSION['wechat_bind_openid'] : '';
+  }
+  
+  //$output .= "openid：" .$openid;
   // check if already connectted
   $curuser = wechat_get_user_by_openid($openid);
   if ($curuser) {
@@ -614,6 +623,9 @@ function wechat_binding_from_wechat_auto_form($form, &$form_state, $openid) {
   $form['openid'] = array('#type' => 'value',
     '#value' => $openid,
   );
+  $form['#attached']['css'] = array(
+    drupal_get_path('module', 'wechat') . '/wechat.css',
+  );  
   $form['#submit'][] = 'wechat_binding_from_wechat_auto_form_submit';
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('自动创建账号并绑定'));
@@ -623,8 +635,8 @@ function wechat_binding_from_wechat_auto_form($form, &$form_state, $openid) {
 
 function wechat_binding_from_wechat_auto_form_submit($form, &$form_state) {
 
-    drupal_set_message('123456'); 
-	watchdog('wechat_binding','wechat_binding_from_wechat_auto_form_submit' );
+  // drupal_set_message('123456'); 
+  //watchdog('wechat_binding','wechat_binding_from_wechat_auto_form_submit' );
   // auto register
   $openid = $form_state['values']['openid'];
   $user_name = 'wechat_' . substr($openid, 0, 15);
