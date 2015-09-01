@@ -221,7 +221,9 @@ function wechat_user_binding_from_drupal($current_user) {
   $wechat_user = db_query('SELECT * FROM {wechat_user} WHERE uid=:uid', array(':uid' => $current_user->uid))->fetchObject();
   //已经绑定了微信账号。
   if (isset($wechat_user->openid)) {
-    $output .= '<p>' . t('您已经绑定了微信账号:') . $wechat_user->openid . '</p>';
+    $output .= '<p>' . t('您已经绑定了微信名称:') . $wechat_user->nickname . '</p>';
+    $wechat_user_binding_cancel_form = drupal_get_form('wechat_user_binding_cancel_form', $wechat_user->openid, $current_user->uid);
+	$output .= drupal_render($wechat_user_binding_cancel_form);
   }
   else {
     $output .= '<p>' . t('使用微信，扫一扫下面的二维码，即可绑定微信账号.') . '</p>';
@@ -239,6 +241,31 @@ function wechat_user_binding_from_drupal($current_user) {
   }
   return $output;
 }
+
+function wechat_user_binding_cancel_form($form, &$form_state, $openid, $uid) {
+
+  // openid:
+  $form['openid'] = array('#type' => 'value',
+    '#value' => $openid,
+  );
+  $form['uid'] = array('#type' => 'value',
+    '#value' => $uid,
+  );  
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('取消绑定'));
+
+  return $form;
+}
+
+function wechat_user_binding_cancel_form_submit($form, &$form_state) {
+
+  $openid = $form_state['values']['openid'];
+  $uid = $form_state['values']['uid'];
+  db_query('update {wechat_user} SET uid=0 WHERE openid=:openid', array(':openid' => $openid));
+  
+}
+
 /**
  * 从微信端访问Drupal绑定账户
  */
