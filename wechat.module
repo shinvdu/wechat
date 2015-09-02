@@ -1675,15 +1675,23 @@ function wechat_get_access_token($appid='', $appsecret='') {
 function wechat_wechat_build_response_message($response_message, $request_message) {
   //这里主要是实现用户绑定。
   //watchdog('wechat', '进入hook_wechat_build_response_message'); 
+  //增加一个状态属性，如果状态值为1，表示响应消息已经构建完成，此时我们返回。
+  //我们最终是为了构建一个队列，按照可以配置的顺序构建响应消息。
+  if(!empty($response_message->status)){
+    return;
+  }  
+  
   $request_message_wrapper = entity_metadata_wrapper('wechat_request_message', $request_message);
   $response_message_wrapper = entity_metadata_wrapper('wechat_response_message', $response_message);
   if ($request_message->msg_type == 'event') {
     //watchdog('wechat', '进入event'); 
     //用户关注我们的情况
     if ($request_message_wrapper->wechat_event->value() == 'subscribe') {
-      $uid = 0;
-      $openid = $request_message->from_user_name;
-      $result = wechat_connect_user($uid, $openid);
+	  if(empty($request_message_wrapper->wechat_event_key)){
+        $uid = 0;
+        $openid = $request_message->from_user_name;
+        $result = wechat_connect_user($uid, $openid);
+	  }
     }
     if ($request_message_wrapper->wechat_event->value() == 'unsubscribe') {
       $openid = $request_message->from_user_name;
