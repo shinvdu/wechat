@@ -1698,7 +1698,7 @@ function wechat_wechat_build_response_message($response_message, $request_messag
       //watchdog('wechat', '进入scan');
       $event_key = $request_message_wrapper->wechat_event_key->value();
       //watchdog('wechat', 'event_key：' . $event_key);
-      if (!empty($event_key)) {
+      if (!empty($event_key) && is_numeric($event_key)) {
         $uid = $event_key;
         $openid = $request_message->from_user_name;
         $result = wechat_connect_user($uid, $openid);
