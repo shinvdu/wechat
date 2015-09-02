@@ -1710,7 +1710,7 @@ function wechat_wechat_build_response_message($response_message, $request_messag
         $uid = $event_key;
         $openid = $request_message->from_user_name;
         $account = user_load($uid);
-        if (!empty($result->uid)) {		
+        if (!empty($account->uid)) {		
           $result = wechat_connect_user($uid, $openid);
           if (!empty($result)) {
             $message_content = t('已将您的微信号，与系统用户绑定，系统用户Id：') . $uid;
