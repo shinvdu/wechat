@@ -1712,11 +1712,13 @@ function wechat_wechat_build_response_message($response_message, $request_messag
         $result = wechat_connect_user($uid, $openid);
         if (!empty($result)) {
           $message_content = t('已将您的微信号，与系统用户绑定，系统用户Id：') . $uid;
-          $response_message_wrapper->wechat_content->set($message_content);            
+          $response_message_wrapper->wechat_content->set($message_content);  
+          $response_message->status = 1;          
         }
         else {
           $message_content = t('未能将您的微信号，与系统用户绑定，尝试绑定的系统用户Id：') . $uid;
           $response_message_wrapper->wechat_content->set($message_content); 
+          $response_message->status = 1;
         }
       }
     }
