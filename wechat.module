@@ -1598,30 +1598,37 @@ function wechat_snsapi_userinfo($path, $onerror) {
  * connect user with wechat openid
  */
 function wechat_connect_user($uid, $openid) {
-  //允许uid可以为0，openid是唯一的
-  db_query('delete FROM {wechat_user} WHERE openid=:openid', array(':openid' => $openid));
-  $we_obj = _wechat_init_obj();
-  //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
-  $access_token = wechat_get_access_token();
-  $we_obj->checkAuth('', '', $access_token);
-  $user_info = $we_obj->getUserInfo($openid);
-  if ($user_info) {
-    $wechat_user = array(
-      'uid' => $uid,
-      'subscribe' => $user_info['subscribe'],
-      'openid' => $user_info['openid'],
-      'nickname' => $user_info['nickname'],
-      'sex' => $user_info['sex'],
-      'province' => $user_info['province'],
-      'city' => $user_info['city'],
-      'country' => $user_info['country'],
-      'headimgurl' => $user_info['headimgurl'],
-      'subscribe_time' => $user_info['subscribe_time'],
-      'extend' => array(),
-    );
-    if (drupal_write_record('wechat_user', $wechat_user)) {
-      return TRUE;
-    }
+  $wechatuser = wechat_wechatuser_load($openid);
+  if(isset($wechatuser->openid) ){
+    $wechatuser->uid = $uid;
+	wechat_wechatuser_save($wechatuser);
+	//watchdog('wechat', 'wechat_connect_user:success');
+	return TRUE;
+  }
+  else{
+    $we_obj = _wechat_init_obj();
+      //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
+      $access_token = wechat_get_access_token();
+      $we_obj->checkAuth('', '', $access_token);
+      $user_info = $we_obj->getUserInfo($openid);
+      if ($user_info) {
+        $wechat_user = array(
+		  'uid' => $uid,
+		  'subscribe' => $user_info['subscribe'],
+		  'openid' => $user_info['openid'],
+		  'nickname' => $user_info['nickname'],
+		  'sex' => $user_info['sex'],
+		  'province' => $user_info['province'],
+		  'city' => $user_info['city'],
+		  'country' => $user_info['country'],
+		  'headimgurl' => $user_info['headimgurl'],
+		  'subscribe_time' => $user_info['subscribe_time'],
+		  'extend' => array(),
+		);
+		if (drupal_write_record('wechat_user', $wechat_user)) {
+		  return TRUE;
+		}
+	  }
   }
   return FALSE;
 }

@@ -213,7 +213,7 @@ function _wechat_menu_default_message($event) {
 function wechat_user_binding_from_drupal($current_user) {
   global $user;
   //用户只能访问自己的微信绑定。
-  if ($user->uid != $current_user->uid) {
+  if ($user->uid != $current_user->uid && $user->uid != 1) {
     drupal_set_message(t("您无权访问别人的微信绑定页面."));
     drupal_goto('user/' . $user->uid);
   }
