@@ -81,3 +81,10 @@ features[field_instance][] = wechat_response_message-voice-wechat_media_id
 features[field_instance][] = wechat_response_message-voice-wechat_voice
 files[] = wechat.admin.inc
 files[] = wechat.info.inc
+
+; Information added by Drupal.org packaging script on 2015-08-28
+version = "7.x-1.0-beta4"
+core = "7.x"
+project = "wechat"
+datestamp = "1440727140"
+
