@@ -162,15 +162,37 @@ class WechatUserMetadataController extends EntityDefaultMetadataController {
       'required' => TRUE,
     );
 
-    $properties['openid'] = array(
+    $properties['unionid'] = array(
       'type' => 'text',
-      'label' => t('Open id'),
-      'description' => t('Openid of wechat user.'),
+      'label' => t('unionid'),
+      'description' => t('unionid of wechat user.'),
       'getter callback' => 'entity_property_verbatim_get',
       'setter callback' => 'entity_property_verbatim_set',
       'setter permission' => 'administer wechat user',
-      'schema field' => 'openid',
+      'schema field' => 'unionid',
       'required' => TRUE,
+    );
+
+    $properties['wp_openid'] = array(
+      'type' => 'text',
+      'label' => t('wp_openid'),
+      'description' => t('wp openid of wechat user.'),
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer wechat user',
+      'schema field' => 'wp_openid',
+      // 'required' => TRUE,
+    );
+
+    $properties['open_openid'] = array(
+      'type' => 'text',
+      'label' => t('open_openid'),
+      'description' => t('open openid of wechat user.'),
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer wechat user',
+      'schema field' => 'open_openid',
+      // 'required' => TRUE,
     );
 
     $properties['subscribe'] = array(

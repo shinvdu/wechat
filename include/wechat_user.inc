@@ -11,12 +11,26 @@ class WechatUser extends Entity {
    */
   public $uid;
   
+    /**
+   * The unionid of wechat user.
+   *
+   * @var string
+   */
+    public $unionid;
+
+    /**
+   * The open_openid of wechat user.
+   *
+   * @var string
+   */
+    public $open_openid;
+
   /**
    * The openid of wechat user.
    *
    * @var string
    */
-  public $openid;
+  public $wp_openid;
   
   /**
    * The subscribe status of wechat user.
@@ -80,11 +94,11 @@ class WechatUser extends Entity {
   }
 
   protected function defaultLabel() {
-    return $this->openid;
+    return $this->unionid;
   }
 
   protected function defaultUri() {
-    return array('path' => 'wechat-user/' . $this->openid);
+    return array('path' => 'wechat-user/' . $this->unionid);
   }
   
   public function save() {

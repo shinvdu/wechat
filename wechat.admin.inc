@@ -27,6 +27,22 @@ function wechat_config_form($form, $form_state) {
     '#default_value' => variable_get('wechat_appsecret', ""),
     '#required' => TRUE,
   );
+
+  $form['wechat_desktop_appid'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Desktop AppID'),
+    '#description' => t('Desktop Account APPID'),
+    '#default_value' => variable_get('wechat_desktop_appid', ""),
+    '#required' => TRUE,
+  );
+  $form['wechat_desktop_appsecret'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Desktop AppSecret'),
+    '#description' => t('Desktop Account AppSecret'),
+    '#default_value' => variable_get('wechat_desktop_appsecret', ""),
+    '#required' => TRUE,
+  );
+
   return system_settings_form($form);
 }
 function wechat_default_message_config_form($form, $form_state) {

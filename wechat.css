@@ -13,3 +13,14 @@
   padding:5px;
   margin-bottom:10px;
 }
+
+@media screen and (max-width: 480px) {
+    .wechat_login_desktop{
+        display: none;
+    }
+}
+@media screen and (min-width: 480px) {
+    .wechat_login_mobile{
+        display: none;
+    }
+}

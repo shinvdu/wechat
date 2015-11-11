@@ -6,10 +6,42 @@
  */
  
 function wechat_login(){
-  $callback = "http://{$_SERVER['HTTP_HOST']}/wechat/auth";    
-  $we_obj = _wechat_init_obj();
-  drupal_goto($we_obj->getOauthLoginRedirect($callback));
-  die();
+  // $callback = "http://{$_SERVER['HTTP_HOST']}/wechat/auth";    
+  // $we_obj = _wechat_init_obj();
+  // drupal_goto($we_obj->getOauthLoginRedirect($callback));
+  // die();
+
+  global $user;
+  // If we are already logged on, go to the user page instead.
+  if ($user->uid) {
+    drupal_goto('user/' . $user->uid);
+  }
+  // get code, then get unionid
+  load_wechat_session(false);
+  $device_type =  $_SESSION['device_type'];
+  $unionid =  $_SESSION['unionid'];
+
+  // check if already connectted
+  $curuser = wechat_get_user_by_unionid($unionid);
+  if ($curuser) {
+    _wechat_user_login($curuser->uid);
+    // todo update user info
+    if (empty($destination)) {
+      $destination = 'user/' . $curuser->uid;
+    }
+    drupal_goto($destination);
+  }
+
+  $wechat_binding_from_wechat_auto_form = drupal_get_form('wechat_binding_from_wechat_auto_form', $device_type);
+  $wechat_binding_from_wechat_bind_form = drupal_get_form('wechat_binding_from_wechat_bind_form', $device_type);
+  $wechat_binding_from_wechat_register_form = drupal_get_form('wechat_binding_from_wechat_register_form', $device_type);
+
+  $output = "";
+  $output .= "<div class='wechat-binding-auto-form'>" . drupal_render($wechat_binding_from_wechat_auto_form) .  '</div>';
+  $output .= "<div class='wechat-binding-bind-form'>" . drupal_render($wechat_binding_from_wechat_bind_form) .  '</div>';
+  $wechat_binding_from_wechat_register_form = drupal_get_form('wechat_binding_from_wechat_register_form', $device_type);
+  $output .= "<div class='wechat-binding-register-form'>" . drupal_render($wechat_binding_from_wechat_register_form) .  '</div>';  
+  return $output;
 }
 
 /**
@@ -129,7 +161,7 @@ function wechat_update_user_info($openid) {
   $output = "";
   if ($user_info) {
     db_merge('wechat_user')
-      ->key(array('openid' => $user_info['openid']))
+      ->key(array('wp_openid' => $user_info['openid']))
       ->updateFields(array(
           'nickname' => $user_info['nickname'],
           'sex' => $user_info['sex'],
@@ -139,7 +171,8 @@ function wechat_update_user_info($openid) {
           'headimgurl' => $user_info['headimgurl'],
       ))
       ->insertFields(array(
-          'openid' => $user_info['openid'],
+          'unionid' => $user_info['unionid'],
+          'wp_openid' => $user_info['openid'],
           'nickname' => $user_info['nickname'],
           'sex' => $user_info['sex'],
           'province' => $user_info['province'],
@@ -335,12 +368,13 @@ function wechat_binding_from_wechat(){
   if ($user->uid) {
     drupal_goto('user/' . $user->uid);
   }
-  // get code, then get openid
-  load_wechat_session();
-  $openid =  $_SESSION['wechat_openid'];
+  // get code, then get unionid
+  load_wechat_session(true);
+  $unionid =  $_SESSION['unionid'];
+  $device_type =  $_SESSION['device_type'];
 
   // check if already connectted
-  $curuser = wechat_get_user_by_openid($openid);
+  $curuser = wechat_get_user_by_unionid($unionid);
   if ($curuser) {
     _wechat_user_login($curuser->uid);
     // todo update user info
@@ -350,14 +384,14 @@ function wechat_binding_from_wechat(){
     drupal_goto($destination);
   }
 
-  $wechat_binding_from_wechat_auto_form = drupal_get_form('wechat_binding_from_wechat_auto_form', $openid);
-  $wechat_binding_from_wechat_bind_form = drupal_get_form('wechat_binding_from_wechat_bind_form', $openid);
-  $wechat_binding_from_wechat_register_form = drupal_get_form('wechat_binding_from_wechat_register_form', $openid);
+  $wechat_binding_from_wechat_auto_form = drupal_get_form('wechat_binding_from_wechat_auto_form', $device_type);
+  $wechat_binding_from_wechat_bind_form = drupal_get_form('wechat_binding_from_wechat_bind_form', $device_type);
+  $wechat_binding_from_wechat_register_form = drupal_get_form('wechat_binding_from_wechat_register_form', $device_type);
 
   $output = "";
   $output .= "<div class='wechat-binding-auto-form'>" . drupal_render($wechat_binding_from_wechat_auto_form) .  '</div>';
   $output .= "<div class='wechat-binding-bind-form'>" . drupal_render($wechat_binding_from_wechat_bind_form) .  '</div>';
-  $wechat_binding_from_wechat_register_form = drupal_get_form('wechat_binding_from_wechat_register_form', $openid);
+  $wechat_binding_from_wechat_register_form = drupal_get_form('wechat_binding_from_wechat_register_form', $device_type);
   $output .= "<div class='wechat-binding-register-form'>" . drupal_render($wechat_binding_from_wechat_register_form) .  '</div>';	 
   return $output;
 }
@@ -366,11 +400,11 @@ function wechat_binding_from_wechat(){
  * 自动创建用户名，将创建的用户名，与微信用户绑定
  *
  */
-function wechat_binding_from_wechat_auto_form($form, &$form_state, $openid) {
+function wechat_binding_from_wechat_auto_form($form, &$form_state, $device_type) {
 
-  // openid:
-  $form['openid'] = array('#type' => 'value',
-    '#value' => $openid,
+  // unionid:
+  $form['device_type'] = array('#type' => 'value',
+    '#value' => $device_type,
   );
   $form['#attached']['css'] = array(
     drupal_get_path('module', 'wechat') . '/wechat.css',
@@ -384,11 +418,13 @@ function wechat_binding_from_wechat_auto_form($form, &$form_state, $openid) {
 
 function wechat_binding_from_wechat_auto_form_submit($form, &$form_state) {
 
-  // drupal_set_message('123456'); 
   //watchdog('wechat_binding','wechat_binding_from_wechat_auto_form_submit' );
   // auto register
-  $openid = $form_state['values']['openid'];
-  $user_name = 'wechat_' . substr($openid, 0, 15);
+  $user_info = $_SESSION['wechat_user_info'];
+  $device_type = $form_state['values']['device_type'];
+  $unionid = $_SESSION['unionid'];
+  // $user_name = 'wechat_' . substr($unionid, 0, 15);
+  $user_name = $user_info['nickname'];
   while (user_load_by_name($user_name)) {
     $user_name = $user_name . rand(0, 100);
   }
@@ -402,16 +438,17 @@ function wechat_binding_from_wechat_auto_form_submit($form, &$form_state) {
   // $account returns user object
   $account = user_save(null, $new_user);
   if (!$account) {
-    $message = t('未能将您的微信号，与系统自动生成的用户绑定，尝试绑定的微信openid：') . $openid;
+    $message = t('未能将您的微信号，与系统自动生成的用户绑定，尝试绑定的微信unionid') . $unionid;
     drupal_set_message($message); 
 	return;
   }
-  $ret = wechat_connect_user($account->uid, $openid);
-  if(!empty($ret)){
+  $mobile = is_mobile($device_type);
+  $ret = wechat_connect_user($account->uid, $user_info, $mobile);
+  if(!$ret){
     _wechat_user_login($account->uid);
 	$form_state['redirect'] = 'user/' . $account->uid;
   }else{
-    $message = t('未能将您的微信号，与系统自动生成的用户绑定，尝试绑定的微信openid：') . $openid;
+    $message = t('未能将您的微信号，与系统自动生成的用户绑定，尝试绑定的微信unionid') . $unionid . ", 微信昵称: {$user_info['nickname']}";
     drupal_set_message($message);  
   }
   
@@ -420,11 +457,11 @@ function wechat_binding_from_wechat_auto_form_submit($form, &$form_state) {
  * 将微信用户与Drupal网站后台已有用户绑定
  *
  */
-function wechat_binding_from_wechat_bind_form($form, &$form_state, $openid) {
+function wechat_binding_from_wechat_bind_form($form, &$form_state, $device_type) {
 
   // openid:
-  $form['openid'] = array('#type' => 'value',
-    '#value' => $openid,
+  $form['device_type'] = array('#type' => 'value',
+    '#value' => $device_type,
   );
   // Display login form:
   $form['name'] = array('#type' => 'textfield',
@@ -455,17 +492,21 @@ function wechat_binding_from_wechat_bind_form($form, &$form_state, $openid) {
 function wechat_binding_from_wechat_bind_form_submit($form, &$form_state) {
   global $user;
   $user = user_load($form_state['uid']);
-  $openid = $form_state['values']['openid'];
+  $device_type = $form_state['values']['device_type'];
+  $unionid = $_SESSION['unionid'];
   // file_put_contents(DRUPAL_ROOT . '/log/wechat.log', 'wechat user openid: ' . $openid . "\n", FILE_APPEND);
   // file_put_contents(DRUPAL_ROOT . '/log/wechat.log', 'wechat user uid: ' . $form_state['uid'] . "\n", FILE_APPEND);
 
-  $result = wechat_connect_user($user->uid, $openid);
-  if (!empty($result)) {
-    $message = t('已将您的微信号，与系统用户绑定，绑定的微信openid：') . $openid;
+  $user_info = $_SESSION['wechat_user_info'];
+  $mobile = is_mobile($device_type);
+  $result = wechat_connect_user($user->uid, $user_info, $mobile);
+
+  if (!$result) {
+    $message = t('已将您的微信号，与系统用户绑定，绑定的微信unionid') . $unionid;
     drupal_set_message($message);       
   }
   else {
-    $message = t('未能将您的微信号，与系统用户绑定，尝试绑定的微信openid：') . $openid;
+    $message = t('未能将您的微信号，与系统用户绑定，尝试绑定的微信unionid') . $unionid;
     drupal_set_message($message);
   }  
   $form_state['redirect'] = 'user/' . $user->uid;
@@ -477,11 +518,11 @@ function wechat_binding_from_wechat_bind_form_submit($form, &$form_state) {
  * 将微信用户,与新注册的Drupal网站后台用户绑定
  *
  */
-function wechat_binding_from_wechat_register_form($form, &$form_state, $openid) {
+function wechat_binding_from_wechat_register_form($form, &$form_state, $device_type) {
 
   // openid:
-  $form['openid'] = array('#type' => 'value',
-    '#value' => $openid,
+  $form['device_type'] = array('#type' => 'value',
+    '#value' => $device_type,
   );
   // Account information.
   $form['account'] = array(
@@ -547,7 +588,8 @@ function wechat_binding_from_wechat_register_form_validate($form, &$form_state) 
 
 function wechat_binding_from_wechat_register_form_submit($form, &$form_state) {
   // auto register
-  $openid = $form_state['values']['openid'];
+  $device_type = $form_state['values']['device_type'];
+  $unionid = $_SESSION['unionid'];
   $name = $form_state['values']['name'];
   $pass = $form_state['values']['pass'];
   $mail = $form_state['values']['mail'];
@@ -561,16 +603,19 @@ function wechat_binding_from_wechat_register_form_submit($form, &$form_state) {
   // $account returns user object
   $account = user_save(null, $new_user);
   if (!$account) {
-    $message = t('未能将您的微信号，与现在注册的用户绑定，尝试绑定的微信openid：') . $openid;
+    $message = t('未能将您的微信号，与现在注册的用户绑定，尝试绑定的微信unionid') . $unionid;
     drupal_set_message($message); 
 	return;
   }
-  $ret = wechat_connect_user($account->uid, $openid);
-  if(!empty($ret)){
+  $user_info = $_SESSION['wechat_user_info'];
+  $mobile = is_mobile($device_type);  
+  $ret = wechat_connect_user($account->uid, $user_info, $mobile);
+
+  if(!$ret){
     _wechat_user_login($account->uid);
 	$form_state['redirect'] = 'user/' . $account->uid;
   }else{
-    $message = t('未能将您的微信号，与现在注册的用户绑定，尝试绑定的微信openid：') . $openid;
+    $message = t('未能将您的微信号，与现在注册的用户绑定，尝试绑定的微信unionid') . $unionid;
     drupal_set_message($message);  
   }
   

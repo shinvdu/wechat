@@ -844,7 +844,7 @@ $return['wechat_user'] = array(
   'base table' => 'wechat_user',
   'fieldable' => TRUE,
   'entity keys' => array(
-    'id' => 'openid',
+    'id' => 'unionid',
     ),
   'access callback' => 'wechat_wechatuser_access',
   'module' => 'wechat',
@@ -1350,6 +1350,22 @@ function _wechat_init_obj() {
   }
   return $we_obj;
 }
+/**
+ * init wechat object for desktop
+ */
+function _wechat_desktop_init_obj() {
+  $we_desktop_obj = &drupal_static(__FUNCTION__);
+  if (!isset($we_desktop_obj)) {
+    module_load_include('php', 'wechat', 'sdk/wechat_desktop.class');
+    $options = array(
+      // 'token' => variable_get('wechat_token', ""),
+      'appid' => variable_get('wechat_desktop_appid', ""),
+      'appsecret' => variable_get('wechat_desktop_appsecret', ""),
+      );
+    $we_desktop_obj = new WechatDesktop($options);
+  }
+  return $we_desktop_obj;
+}
 
 /**
  * init wechat object
@@ -1382,10 +1398,10 @@ function wechat_user_load($users) {
 }
 
 /**
- * load user by wechat openid
+ * load user by wechat unionid
  */
-function wechat_get_user_by_openid($openid) {
-  $result = db_query("SELECT * FROM {wechat_user} WHERE openid=:openid", array(':openid' => $openid));
+function wechat_get_user_by_unionid($unionid) {
+  $result = db_query("SELECT * FROM {wechat_user} WHERE unionid=:unionid", array(':unionid' => $unionid));
   if (!$result) {
     return FALSE;
   }
@@ -1412,36 +1428,58 @@ function wechat_snsapi_userinfo($path, $onerror) {
   drupal_goto($auth_url);
 }
 
-/**
- * connect user with wechat openid
- */
-function wechat_connect_user($uid, $openid) {
-  //允许uid可以为0，openid是唯一的
-  db_query('delete FROM {wechat_user} WHERE openid=:openid', array(':openid' => $openid));
-  $we_obj = _wechat_init_obj();
+function wechat_user_info($openid, $mobile = true){
+  if ($mobile) {
+    $we_obj = _wechat_init_obj();
   //由于我们使用的wechat SDK，目前没有setAccessToken($access_token)，所以我们这里只能委屈一下了
-  $access_token = wechat_get_access_token();
-  $we_obj->checkAuth('', '', $access_token);
-  $user_info = $we_obj->getUserInfo($openid);
-  if ($user_info) {
+    $access_token = wechat_get_access_token();
+    $we_obj->checkAuth('', '', $access_token);
+    $user_info = $we_obj->getUserInfo($openid);
+  }else{
+    $we_obj = _wechat_desktop_init_obj();
+    $user_info = $we_obj->getUserInfo($openid);
+  }
+  return $user_info;
+}
+/**
+ * connect user with wechat account
+ */
+function wechat_connect_user($uid, $user_info, $mobile = true) {
+  $query = db_select('wechat_user', 'o');
+  $query->condition('o.unionid', $user_info['unionid'], '=');
+  $query->fields('o', array('uid', 'unionid', 'wp_openid', 'open_openid', 'subscribe', 'nickname', 'sex', 'province', 'city', 'country', 'headimgurl', 'subscribe_time'));
+  $query->range(0, 1);
+  $result = $query->execute();
+  if ($result->rowCount()) {
+     // $record = $result->fetchAssoc();
+   $wechat_user = array(
+    'uid' => $uid,
+    'nickname' => $user_info['nickname'],
+    'subscribe' => (int)(isset($user_info['subscribe']) ? $user_info['subscribe'] : ''),
+    'headimgurl' => $user_info['headimgurl'],
+    );
+   $openid_key = $mobile ? 'wp_openid' : 'open_openid';
+   $wechat_user[$openid_key] = $user_info['openid'];
+   $primary_key = array('unionid');
+   return   $num_updated = db_update('wechat_user')->fields($wechat_user)->condition('unionid', $user_info['unionid'], '=')->execute();
+   }else{
+      // insert
     $wechat_user = array(
+      'unionid' => $user_info['unionid'],
       'uid' => $uid,
-      'subscribe' => $user_info['subscribe'],
-      'openid' => $user_info['openid'],
+      'subscribe' => (int)(isset($user_info['subscribe']) ? $user_info['subscribe'] : ''),
       'nickname' => $user_info['nickname'],
       'sex' => $user_info['sex'],
       'province' => $user_info['province'],
       'city' => $user_info['city'],
       'country' => $user_info['country'],
       'headimgurl' => $user_info['headimgurl'],
-      'subscribe_time' => $user_info['subscribe_time'],
-      'extend' => array(),
+      'subscribe_time' => time(),
       );
-    if (drupal_write_record('wechat_user', $wechat_user)) {
-      return TRUE;
-    }
+    $openid_key = $mobile ? 'wp_openid' : 'open_openid';
+    $wechat_user[$openid_key] = $user_info['openid'];
+    return db_insert('wechat_user')->fields($wechat_user)->execute();
   }
-  return FALSE;
 }
 
 function wechat_get_access_token($appid='', $appsecret='') {
@@ -1501,11 +1539,12 @@ function wechat_wechat_build_response_message($response_message, $request_messag
     if ($request_message_wrapper->wechat_event->value() == 'subscribe') {
       $uid = 0;
       $openid = $request_message->from_user_name;
-      $result = wechat_connect_user($uid, $openid);
+      $user_info = wechat_user_info($openid, $mobile = true);
+      $result = wechat_connect_user($uid, $user_info);
     }
     if ($request_message_wrapper->wechat_event->value() == 'unsubscribe') {
       $openid = $request_message->from_user_name;
-      db_query('delete FROM {wechat_user} WHERE openid=:openid', array(':openid' => $openid));
+      db_query('delete FROM {wechat_user} WHERE wp_openid=:wp_openid', array(':wp_openid' => $openid));
     }	
     //用户扫描二维码，绑定账号
     $wechat_event = $request_message_wrapper->wechat_event->value();
@@ -1519,7 +1558,8 @@ function wechat_wechat_build_response_message($response_message, $request_messag
       if (!empty($event_key)) {
         $uid = $event_key;
         $openid = $request_message->from_user_name;
-        $result = wechat_connect_user($uid, $openid);
+        $user_info = wechat_user_info($openid, $mobile = true);
+        $result = wechat_connect_user($uid, $user_info);
         if (!empty($result)) {
           $message_content = t('已将您的微信号，与系统用户绑定，系统用户Id：') . $uid;
           $response_message_wrapper->wechat_content->set($message_content);            
@@ -1565,7 +1605,8 @@ function wechat_upload_media($fid, $type) {
 function wechat_build_news_article($node, $position=0){
   $article_item = array(
     'title' => "",
-    'description' => "",
+    
+    +'description' => "",
     'url' => "",
     'picurl' => "",
     );
@@ -1627,11 +1668,32 @@ function wechat_wechatuser_access($op, $wechat_user = NULL, $account = NULL) {
  *
  * @see wechat_user_load_multiple()
  */
-function wechat_wechatuser_load($openid, $reset = FALSE) {
-  $wechat_users = wechat_wechatuser_load_multiple(array($openid), array(), $reset);
+function wechat_wechatuser_load($unionid, $reset = FALSE) {
+  $wechat_users = wechat_wechatuser_load_multiple(array($unionid), array(), $reset);
   return reset($wechat_users);
 }
 
+function wechat_wechatuser_load_by_wp_openid($wp_openid){
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'wechat_user')->propertyCondition('wp_openid', $wp_openid);
+  $result = $query->execute();
+  if (isset($result['wechat_user'])) {
+    $news_items_nids = array_keys($result['wechat_user']);
+    $news_items = entity_load('wechat_user', $news_items_nids);
+  }
+  return $news_items;
+}
+
+function wechat_wechatuser_load_by_open_openid($open_openid){
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'wechat_user')->propertyCondition('open_openid', $open_openid);
+  $result = $query->execute();
+  if (isset($result['wechat_user'])) {
+    $news_items_nids = array_keys($result['wechat_user']);
+    $news_items = entity_load('wechat_user', $news_items_nids);
+  }
+  return $news_items;
+}
 
 /**
  * Load multiple wechat user based on certain conditions.
@@ -1648,8 +1710,8 @@ function wechat_wechatuser_load($openid, $reset = FALSE) {
  * @see entity_load()
  * @see wechat_user_load()
  */
-function wechat_wechatuser_load_multiple($openids = array(), $conditions = array(), $reset = FALSE) {
-  return entity_load('wechat_user', $openids, $conditions, $reset);
+function wechat_wechatuser_load_multiple($unionids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('wechat_user', $unionids, $conditions, $reset);
 }
 
 /**
@@ -1663,11 +1725,11 @@ function wechat_wechatuser_delete(WechatUser $wechat_user) {
 /**
  * Delete multiple wechat users.
  *
- * @param $openids
- *   An array of wechat user openids.
+ * @param $unionids
+ *   An array of wechat user unionids.
  */
-function wechat_wechatuser_delete_multiple(array $openids) {
-  entity_get_controller('wechat_user')->delete($openids);
+function wechat_wechatuser_delete_multiple(array $unionids) {
+  entity_get_controller('wechat_user')->delete($unionids);
 }
 
 
@@ -1694,7 +1756,7 @@ function wechat_wechatuser_save(WechatUser $wechat_user) {
  */
 function wechat_wechatuser_uri(WechatUser $wechat_user) {
   return array(
-    'path' => 'wechat-user/' . $wechat_user->openid,
+    'path' => 'wechat-user/' . $wechat_user->wp_openid,
     );
 }
 
@@ -1705,10 +1767,11 @@ function wechat_wechat_request_message_insert($request_message) {
 
   $request_message_wrapper = entity_metadata_wrapper('wechat_request_message', $request_message);  
   $openid = $request_message->from_user_name;
-  $wechatuser = wechat_wechatuser_load($openid);
+  $wechatuser = wechat_wechatuser_load_by_wp_openid($openid);
   if(empty($wechatuser)){
     $uid = 0;
-    $result = wechat_connect_user($uid, $openid);    
+    $user_info = wechat_user_info($openid, $mobile = true);
+    $result = wechat_connect_user($uid, $user_info);    
   }
 }
 
@@ -1726,14 +1789,15 @@ function wechat_form_alter(&$form, &$form_state, $form_id){
   switch($form_id) {  
       case 'user_login': // the value we stole from the rendered form  
       case 'user_register_form': // the value we stole from the rendered form  
+      drupal_add_css(drupal_get_path('module', 'wechat') . '/wechat.css');
       $form['cutomtext'] = array(
         '#type' => 'item',
-        '#markup' => '<div > <a href="'  . $base_url . '/wechat/login'. '"><img src="' .  $base_url . '/' . drupal_get_path('module', 'wechat') . '/icon48_wx_button.png' .  '" alt=""></a> </div>',
+        '#markup' => '<div class="wechat_login_mobile"> <a href="'  . $base_url . '/wechat/login'. '"><img src="' .  $base_url . '/' . drupal_get_path('module', 'wechat') . '/icon48_wx_button.png' .  '" alt=""></a> </div>',
         '#weight' => 1, // Adjust so that you can place it whereever 
         );
       $form['wechat_binding'] = array(
         '#type' => 'item',
-        '#markup' => '<div > <a href="'  . $base_url . '/wechat-binding'. '">Binding Website Account</a> </div>',
+        '#markup' => '<div class="wechat_login_desktop"> <a href="'  . $base_url . '/wechat-binding'. '"><img src="' .  $base_url . '/' . drupal_get_path('module', 'wechat') . '/icon48_wx_button.png' .  '" alt=""></a> </div>',
         '#weight' => 1, // Adjust so that you can place it whereever 
         );      
       break;  
@@ -1743,37 +1807,59 @@ function wechat_form_alter(&$form, &$form_state, $form_id){
 /* 
 * load wechat session, get user openid. 
 */
-function load_wechat_session(){
+function load_wechat_session($mobile = true){
 // if this is wechat callback, and set session
-  if (isset($_GET['code']) && (! isset($_SESSION['wechat_openid']))) {
-    set_token();
+  if (isset($_GET['code']) && (! isset($_SESSION['unionid']))) {
+  // if (isset($_GET['code'])) {
+    set_token($mobile);
   }
 // if not set wechat session, then set it 
-  if (! isset($_SESSION['wechat_openid']) ) {
-    get_code();
+  if (! isset($_SESSION['unionid']) ) {
+    get_code($mobile);
   }
 }
 
 /*
 * mobile brower build code request url. 
 */ 
-function get_code(){
+function get_code($mobile){
   $actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";    
-  $we_obj = _wechat_init_obj();
-  $auth_url = $we_obj->getOauthRedirect($actual_link, 'hello', 'snsapi_userinfo');
+  if ($mobile) {
+    $we_obj = _wechat_init_obj();
+    $auth_url = $we_obj->getOauthRedirect($actual_link, 'hello', 'snsapi_userinfo');
+  }else{
+    $we_desktop_obj = _wechat_desktop_init_obj();
+    $auth_url = $we_desktop_obj->getOauthLoginRedirect($actual_link, 'hello', 'snsapi_login');
+  }
   drupal_goto($auth_url);
 }
 
-function set_token(){
+function set_token($mobile){
   $we_obj = _wechat_init_obj();
-  $access_data = $we_obj->getOauthAccessToken();
-    // error_log(print_r($data_back, true));
+  if ($mobile) {
+    $we_obj = _wechat_init_obj();
+    $access_data = $we_obj->getOauthAccessToken();
+  }else{
+    $we_desktop_obj = _wechat_desktop_init_obj();
+    $access_data = $we_desktop_obj->getOauthAccessToken();
+  }
+    // error_log(print_r($access_data, true));
   $accessToken =  $access_data['access_token'];
   $openid =  $access_data['openid'];
-    // $unionid =  $data_back->unionid;
-  $_SESSION['wechat_openid'] = $openid;
-  $_SESSION['access_token'] = $accessToken;
-    // $_SESSION['unionid'] = $unionid;
+  // $unionid =  empty($access_data['unionid']) ? '' : $access_data['unionid'];
+  // get user_info
+  $user_info = wechat_user_info($openid, $mobile);
+  $_SESSION['unionid'] = $user_info['unionid']; 
+  $_SESSION['wechat_user_info'] = $user_info;
+  if ($mobile) {
+    $_SESSION['wp_openid'] = $openid;
+    $_SESSION['wp_access_token'] = $accessToken;
+    $_SESSION['device_type'] = 'mobile';
+  }else{
+    $_SESSION['open_openid'] = $openid;
+    $_SESSION['open_access_token'] = $accessToken;
+    $_SESSION['device_type'] = 'desktop';
+  }
 }
 
 
@@ -1784,3 +1870,16 @@ function wechat_user_delete($account){
   ->condition('uid', $account->uid)
   ->execute();
 }
+
+function is_mobile($device_type){
+  switch ($device_type) {
+    case 'mobile':
+      return true;
+      break;
+    
+    case 'desktop':
+      return false;
+      break;
+  }
+}
+

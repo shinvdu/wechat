@@ -2060,15 +2060,6 @@ class Wechat
 		return self::OAUTH_PREFIX.self::OAUTH_AUTHORIZE_URL.'appid='.$this->appid.'&redirect_uri='.urlencode($callback).'&response_type=code&scope='.$scope.'&state='.$state.'#wechat_redirect';
 	}
 
-            /**
-             * 网站登陆, oauth 授权跳转接口
-             * @param string $callback 回调URI
-             * @return string
-             */
-            public function getOauthLoginRedirect($callback,$state='',$scope='snsapi_login'){
-                return self::OAUTH__LOGIN_PREFIX . '?appid='.$this->appid.'&redirect_uri='.urlencode($callback).'&response_type=code&scope='.$scope.'&state='.$state.'#wechat_redirect';
-            }
-
 	/**
 	 * 通过code获取Access Token
 	 * @return array {access_token,expires_in,refresh_token,openid,scope}

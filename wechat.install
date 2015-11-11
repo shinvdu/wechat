@@ -230,11 +230,23 @@ function wechat_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'openid' => array(
-        'description' => 'openid',
+      'unionid' => array(
+        'description' => 'unionid',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
+      ),
+      'wp_openid' => array(
+        'description' => 'wp_openid',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => false,
+      ),
+      'open_openid' => array(
+        'description' => 'open_openid',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => false,
       ),
       'subscribe' => array(
         'description' => 'subscribe',
@@ -293,7 +305,7 @@ function wechat_schema() {
         'default' => 0,
       ),
     ),
-    'primary key' => array('openid'),
+    'primary key' => array('unionid'),
   );
   $schema['wechat_access_token'] = array(
     'description' => 'Stores wechat access token.',
@@ -375,5 +387,4 @@ function wechat_uninstall() {
   field_delete_field('wechat_url');
   field_delete_field('wechat_article');
 }
-
 
