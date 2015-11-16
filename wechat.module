@@ -1792,12 +1792,12 @@ function wechat_form_alter(&$form, &$form_state, $form_id){
       drupal_add_css(drupal_get_path('module', 'wechat') . '/wechat.css');
       $form['cutomtext'] = array(
         '#type' => 'item',
-        '#markup' => '<div class="wechat_login_mobile"> <a href="'  . $base_url . '/wechat/login'. '"><img src="' .  $base_url . '/' . drupal_get_path('module', 'wechat') . '/icon48_wx_button.png' .  '" alt=""></a> </div>',
+        '#markup' => '<div class="wechat_login_desktop"> <a href="'  . $base_url . '/wechat/login'. '"><img src="' .  $base_url . '/' . drupal_get_path('module', 'wechat') . '/icon48_wx_button.png' .  '" alt=""></a> </div>',
         '#weight' => 1, // Adjust so that you can place it whereever 
         );
       $form['wechat_binding'] = array(
         '#type' => 'item',
-        '#markup' => '<div class="wechat_login_desktop"> <a href="'  . $base_url . '/wechat-binding'. '"><img src="' .  $base_url . '/' . drupal_get_path('module', 'wechat') . '/icon48_wx_button.png' .  '" alt=""></a> </div>',
+        '#markup' => '<div class="wechat_login_mobile"> <a href="'  . $base_url . '/wechat-binding'. '"><img src="' .  $base_url . '/' . drupal_get_path('module', 'wechat') . '/icon48_wx_button.png' .  '" alt=""></a> </div>',
         '#weight' => 1, // Adjust so that you can place it whereever 
         );      
       break;  
